@@ -3,9 +3,10 @@ from typing import Optional
 from pydantic import EmailStr, validator
 from sqlmodel import Field, SQLModel
 
+from .base import IDModelMixin
 
-class Customer(SQLModel, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
+
+class CustomerBase(SQLModel):
     first_name: str
     last_name: str
     email: EmailStr
@@ -18,3 +19,23 @@ class Customer(SQLModel, table=True):
         if not [re.search(pattern, v) for pattern in patterns]:
             raise ValueError("Invalid phone number format.")
         return v
+
+
+class Customer(CustomerBase, IDModelMixin, table=True):
+    pass
+
+
+class CustomerRead(CustomerBase):
+    id: int
+
+
+class CustomerCreate(CustomerBase):
+    pass
+
+
+class CustomerUpdate(SQLModel):
+    first_name: Optional[str]
+    last_name: Optional[str]
+    email: Optional[EmailStr]
+    phone: Optional[str]
+    address_id: Optional[int]

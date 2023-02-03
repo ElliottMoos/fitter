@@ -2,6 +2,8 @@ from typing import Optional
 from enum import Enum
 from sqlmodel import Field, SQLModel
 
+from .base import IDModelMixin
+
 
 class State(str, Enum):
     AL = "AL"
@@ -63,13 +65,35 @@ class State(str, Enum):
     WY = "WY"
 
 
-class Address(SQLModel, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
+class AddressBase(SQLModel):
     street: str
     street_2: Optional[str] = Field(default="")
     city: str
     state: State
     zip_code: int
+
+    class Config:
+        use_enum_values = True
+
+
+class Address(AddressBase, IDModelMixin, table=True):
+    pass
+
+
+class AddressRead(AddressBase):
+    id: int
+
+
+class AddressCreate(AddressBase):
+    pass
+
+
+class AddressUpdate(SQLModel):
+    street: Optional[str]
+    street_2: Optional[str]
+    city: Optional[str]
+    state: Optional[State]
+    zip_code: Optional[str]
 
     class Config:
         use_enum_values = True
