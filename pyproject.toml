@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "c868"
+name = "fitter"
 version = "0.1.0"
 description = "WGU Captsone Project"
 authors = ["Elliott Moos <emoos@wgu.edu>"]
