@@ -1,8 +1,13 @@
+import random
 from typing import Optional
 from enum import Enum
 from sqlmodel import Field, SQLModel
 
 from .base import IDModelMixin
+
+
+def random_hex_color():
+    return f"#{random.randint(0, 0xFFFFFF):06x}"
 
 
 class Role(str, Enum):
@@ -17,6 +22,7 @@ class FitterBase(SQLModel):
     first_name: str
     last_name: str
     role: Role
+    calendar_color: str = Field(default_factory=random_hex_color)
     store_id: Optional[int] = Field(default=None, foreign_key="store.id")
     address_id: Optional[int] = Field(default=None, foreign_key="address.id")
 

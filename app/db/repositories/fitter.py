@@ -12,19 +12,21 @@ class FitterRepository(BaseRepository):
     def get_all_fitters(self) -> List[FitterRead]:
         return self.session.exec(select(Fitter)).all()
 
-    def create_fitter(self, *, fitter_create: FitterCreate) -> FitterRead:
+    def create_fitter(self, fitter_create: FitterCreate) -> FitterRead:
         db_fitter = Fitter.from_orm(fitter_create)
         self.session.add(db_fitter)
         self.session.commit()
         self.session.refresh(db_fitter)
         return db_fitter
 
-    def get_fitter_by_id(self, *, fitter_id: int) -> FitterRead:
+    def get_fitter_by_id(self, fitter_id: int) -> FitterRead:
         return self.session.get(Fitter, fitter_id)
 
-    def update_fitter(
-        self, *, fitter_update: FitterUpdate, fitter_id: int
-    ) -> FitterRead:
+    def get_fitter_by_username(self, username: str) -> FitterRead:
+        results = self.session.exec(select(Fitter).where(Fitter.username == username))
+        return results.first()
+
+    def update_fitter(self, fitter_update: FitterUpdate, fitter_id: int) -> FitterRead:
         db_fitter = self.session.get(Fitter, fitter_id)
         if not db_fitter:
             return
@@ -36,7 +38,7 @@ class FitterRepository(BaseRepository):
         self.session.refresh(db_fitter)
         return db_fitter
 
-    def delete_fitter(self, *, fitter_id: int) -> bool:
+    def delete_fitter(self, fitter_id: int) -> bool:
         db_fitter = self.session.get(Fitter, fitter_id)
         if not db_fitter:
             return False

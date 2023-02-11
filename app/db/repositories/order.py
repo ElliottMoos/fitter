@@ -12,17 +12,17 @@ class OrderRepository(BaseRepository):
     def get_all_orders(self) -> List[OrderRead]:
         return self.session.exec(select(Order)).all()
 
-    def create_order(self, *, order_create: OrderCreate) -> OrderRead:
+    def create_order(self, order_create: OrderCreate) -> OrderRead:
         db_order = Order.from_orm(order_create)
         self.session.add(db_order)
         self.session.commit()
         self.session.refresh(db_order)
         return db_order
 
-    def get_order_by_id(self, *, order_id: int) -> OrderRead:
+    def get_order_by_id(self, order_id: int) -> OrderRead:
         return self.session.get(Order, order_id)
 
-    def update_order(self, *, order_update: OrderUpdate, order_id: int) -> OrderRead:
+    def update_order(self, order_update: OrderUpdate, order_id: int) -> OrderRead:
         db_order = self.session.get(Order, order_id)
         if not db_order:
             return
@@ -34,7 +34,7 @@ class OrderRepository(BaseRepository):
         self.session.refresh(db_order)
         return db_order
 
-    def delete_order(self, *, order_id: int) -> bool:
+    def delete_order(self, order_id: int) -> bool:
         db_order = self.session.get(Order, order_id)
         if not db_order:
             return False

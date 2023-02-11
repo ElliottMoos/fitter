@@ -1,0 +1,40 @@
+{% extends "base.html" %} {% block nav_items %}
+<li class="nav-item">
+    <a class="nav-link active" aria-current="page" href="#">Fittings</a>
+</li>
+{% if fitter.role == "Lead" %}
+<li class="nav-item">
+    <a class="nav-link" href="#">Fitters</a>
+</li>
+{% endif %}
+<li class="nav-item">
+    <a class="nav-link" href="#">Customers</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="#">Reports</a>
+</li>
+{% endblock nav_items %} {% block content %}
+<div class="container fluid">
+    <div
+        class="btn-toolbar justify-content-between mb-2"
+        role="toolbar"
+        aria-label="Calendar navigation toolbar"
+    >
+        <button type="button" class="btn btn-dark" onclick="previousWeek()">
+            Previous
+        </button>
+        <button type="button" class="btn btn-dark" onclick="nextWeek()">
+            Next
+        </button>
+    </div>
+    <div id="appointments"></div>
+</div>
+{% endblock content %} {% block scripts %}
+<script src="{{ url_for('static', path='/js/daypilot-all.min.js') }}"></script>
+<script
+    id="calendar-script"
+    src="{{ url_for('static', path='/js/calendar.js') }}"
+    data-fitter-id="{{ fitter.id }}"
+    data-fitter-role="{{ fitter.role }}"
+></script>
+{% endblock scripts %}

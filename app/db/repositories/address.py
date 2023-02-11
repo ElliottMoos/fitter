@@ -12,18 +12,18 @@ class AddressRepository(BaseRepository):
     def get_all_addresses(self) -> List[AddressRead]:
         return self.session.exec(select(Address)).all()
 
-    def create_address(self, *, address_create: AddressCreate) -> AddressRead:
+    def create_address(self, address_create: AddressCreate) -> AddressRead:
         db_address = Address.from_orm(address_create)
         self.session.add(db_address)
         self.session.commit()
         self.session.refresh(db_address)
         return db_address
 
-    def get_address_by_id(self, *, address_id: int) -> AddressRead:
+    def get_address_by_id(self, address_id: int) -> AddressRead:
         return self.session.get(Address, address_id)
 
     def update_address(
-        self, *, address_update: AddressUpdate, address_id: int
+        self, address_update: AddressUpdate, address_id: int
     ) -> AddressRead:
         db_address = self.session.get(Address, address_id)
         if not db_address:
@@ -36,7 +36,7 @@ class AddressRepository(BaseRepository):
         self.session.refresh(db_address)
         return db_address
 
-    def delete_address(self, *, address_id: int) -> bool:
+    def delete_address(self, address_id: int) -> bool:
         db_address = self.session.get(Address, address_id)
         if not db_address:
             return False

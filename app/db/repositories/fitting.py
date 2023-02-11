@@ -1,4 +1,5 @@
 from typing import List
+from datetime import datetime
 from sqlmodel import select, Session
 
 from .base import BaseRepository
@@ -12,18 +13,31 @@ class FittingRepository(BaseRepository):
     def get_all_fittings(self) -> List[FittingRead]:
         return self.session.exec(select(Fitting)).all()
 
-    def create_fitting(self, *, fitting_create: FittingCreate) -> FittingRead:
+    def get_fittings_start(self, start: datetime) -> List[FittingRead]:
+        return self.session.exec(select(Fitting).where(Fitting.start >= start)).all()
+
+    def get_fittings_end(self, end: datetime) -> List[FittingRead]:
+        return self.session.exec(select(Fitting).where(Fitting.end <= end)).all()
+
+    def get_fittings_start_end(
+        self, start: datetime, end: datetime
+    ) -> List[FittingRead]:
+        return self.session.exec(
+            select(Fitting).where(Fitting.start >= start).where(Fitting.end <= end)
+        ).all()
+
+    def create_fitting(self, fitting_create: FittingCreate) -> FittingRead:
         db_fitting = Fitting.from_orm(fitting_create)
         self.session.add(db_fitting)
         self.session.commit()
         self.session.refresh(db_fitting)
         return db_fitting
 
-    def get_fitting_by_id(self, *, fitting_id: int) -> FittingRead:
+    def get_fitting_by_id(self, fitting_id: int) -> FittingRead:
         return self.session.get(Fitting, fitting_id)
 
     def update_fitting(
-        self, *, fitting_update: FittingUpdate, fitting_id: int
+        self, fitting_update: FittingUpdate, fitting_id: int
     ) -> FittingRead:
         db_fitting = self.session.get(Fitting, fitting_id)
         if not db_fitting:
@@ -36,10 +50,10 @@ class FittingRepository(BaseRepository):
         self.session.refresh(db_fitting)
         return db_fitting
 
-    def delete_fitting(self, *, fitting_id: int) -> bool:
+    def delete_fitting(self, fitting_id: int) -> bool:
         db_fitting = self.session.get(Fitting, fitting_id)
         if not db_fitting:
-            return False
+            return
         self.session.delete(db_fitting)
         self.session.commit()
-        return True
+        return db_fitting

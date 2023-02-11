@@ -12,18 +12,18 @@ class CustomerRepository(BaseRepository):
     def get_all_customers(self) -> List[CustomerRead]:
         return self.session.exec(select(Customer)).all()
 
-    def create_customer(self, *, customer_create: CustomerCreate) -> CustomerRead:
+    def create_customer(self, customer_create: CustomerCreate) -> CustomerRead:
         db_customer = Customer.from_orm(customer_create)
         self.session.add(db_customer)
         self.session.commit()
         self.session.refresh(db_customer)
         return db_customer
 
-    def get_customer_by_id(self, *, customer_id: int) -> CustomerRead:
+    def get_customer_by_id(self, customer_id: int) -> CustomerRead:
         return self.session.get(Customer, customer_id)
 
     def update_customer(
-        self, *, customer_update: CustomerUpdate, customer_id: int
+        self, customer_update: CustomerUpdate, customer_id: int
     ) -> CustomerRead:
         db_customer = self.session.get(Customer, customer_id)
         if not db_customer:
@@ -36,7 +36,7 @@ class CustomerRepository(BaseRepository):
         self.session.refresh(db_customer)
         return db_customer
 
-    def delete_customer(self, *, customer_id: int) -> bool:
+    def delete_customer(self, customer_id: int) -> bool:
         db_customer = self.session.get(Customer, customer_id)
         if not db_customer:
             return False

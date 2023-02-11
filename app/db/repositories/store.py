@@ -12,17 +12,17 @@ class StoreRepository(BaseRepository):
     def get_all_stores(self) -> List[StoreRead]:
         return self.session.exec(select(Store)).all()
 
-    def create_store(self, *, store_create: StoreCreate) -> StoreRead:
+    def create_store(self, store_create: StoreCreate) -> StoreRead:
         db_store = Store.from_orm(store_create)
         self.session.add(db_store)
         self.session.commit()
         self.session.refresh(db_store)
         return db_store
 
-    def get_store_by_id(self, *, store_id: int) -> StoreRead:
+    def get_store_by_id(self, store_id: int) -> StoreRead:
         return self.session.get(Store, store_id)
 
-    def update_store(self, *, store_update: StoreUpdate, store_id: int) -> StoreRead:
+    def update_store(self, store_update: StoreUpdate, store_id: int) -> StoreRead:
         db_store = self.session.get(Store, store_id)
         if not db_store:
             return
@@ -34,7 +34,7 @@ class StoreRepository(BaseRepository):
         self.session.refresh(db_store)
         return db_store
 
-    def delete_store(self, *, store_id: int) -> bool:
+    def delete_store(self, store_id: int) -> bool:
         db_store = self.session.get(Store, store_id)
         if not db_store:
             return False

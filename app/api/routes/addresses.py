@@ -3,7 +3,7 @@ from fastapi import Depends, APIRouter
 
 from app.api.dependencies.database import get_repository
 from app.models.address import AddressCreate, AddressRead, AddressUpdate
-from app.db.repositories.addresses import AddressRepository
+from app.db.repositories.address import AddressRepository
 
 
 addresses_router = APIRouter(prefix="/addresses", tags=["addresses"])
