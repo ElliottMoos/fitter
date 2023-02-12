@@ -3,7 +3,13 @@ from datetime import datetime
 from sqlmodel import select, Session
 
 from .base import BaseRepository
-from app.models.fitting import FittingCreate, FittingRead, FittingUpdate, Fitting
+from app.models import (
+    FittingCreate,
+    FittingRead,
+    FittingUpdate,
+    Fitting,
+    FittingReadAllRelations,
+)
 
 
 class FittingRepository(BaseRepository):
@@ -26,6 +32,11 @@ class FittingRepository(BaseRepository):
             select(Fitting).where(Fitting.start >= start).where(Fitting.end <= end)
         ).all()
 
+    def get_fittings_for_fitter(self, fitter_id: int) -> List[FittingRead]:
+        return self.session.exec(
+            select(Fitting).where(Fitting.fitter_id == fitter_id)
+        ).all()
+
     def create_fitting(self, fitting_create: FittingCreate) -> FittingRead:
         db_fitting = Fitting.from_orm(fitting_create)
         self.session.add(db_fitting)
@@ -33,7 +44,7 @@ class FittingRepository(BaseRepository):
         self.session.refresh(db_fitting)
         return db_fitting
 
-    def get_fitting_by_id(self, fitting_id: int) -> FittingRead:
+    def get_fitting_by_id(self, fitting_id: int) -> FittingReadAllRelations:
         return self.session.get(Fitting, fitting_id)
 
     def update_fitting(

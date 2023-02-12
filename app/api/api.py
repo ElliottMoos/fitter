@@ -6,7 +6,7 @@ from fastapi.staticfiles import StaticFiles
 from app.core.settings import settings
 from app.core import tasks
 from app.api.routes import api_router, template_router
-from app.models.fitter import FitterRead
+from app.models import FitterRead
 from app.api.dependencies.auth import get_fitter_from_session_token
 
 
@@ -30,11 +30,15 @@ templates = Jinja2Templates(directory="app/api/templates")
 @app.get("/", response_class=HTMLResponse)
 async def home(
     request: Request,
-    current_fitter: FitterRead = Depends(get_fitter_from_session_token),
+    active_fitter: FitterRead = Depends(get_fitter_from_session_token),
 ):
-    if current_fitter:
+    if active_fitter:
         return templates.TemplateResponse(
             "index.html",
-            {"title": "Fittr - Home", "request": request, "fitter": current_fitter},
+            {
+                "title": "Fittr - Home",
+                "request": request,
+                "active_fitter": active_fitter,
+            },
         )
     return RedirectResponse("/login")

@@ -6,7 +6,7 @@ from pydantic import ValidationError
 from passlib.context import CryptContext
 
 from app.core.settings import settings
-from app.models.fitter import FitterBase
+from app.models import FitterBase
 from app.models.token import JWTCreds, JWTMeta, JWTPayload
 
 

@@ -2,13 +2,13 @@
 <li class="nav-item">
     <a class="nav-link active" aria-current="page" href="#">Fittings</a>
 </li>
-{% if fitter.role == "Lead" %}
+{% if active_fitter.role == "Lead" %}
 <li class="nav-item">
-    <a class="nav-link" href="#">Fitters</a>
+    <a class="nav-link" href="/fitters">Fitters</a>
 </li>
 {% endif %}
 <li class="nav-item">
-    <a class="nav-link" href="#">Customers</a>
+    <a class="nav-link" href="/customers">Customers</a>
 </li>
 <li class="nav-item">
     <a class="nav-link" href="#">Reports</a>
@@ -34,7 +34,7 @@
 <script
     id="calendar-script"
     src="{{ url_for('static', path='/js/calendar.js') }}"
-    data-fitter-id="{{ fitter.id }}"
-    data-fitter-role="{{ fitter.role }}"
+    data-active-fitter-id="{{ active_fitter.id }}"
+    data-active-fitter-role="{{ active_fitter.role }}"
 ></script>
 {% endblock scripts %}

@@ -2,7 +2,12 @@ from typing import List
 from fastapi import Depends, APIRouter
 
 from app.api.dependencies.database import get_repository
-from app.models.address import AddressCreate, AddressRead, AddressUpdate
+from app.models import (
+    AddressCreate,
+    AddressRead,
+    AddressUpdate,
+    AddressReadAllRelations,
+)
 from app.db.repositories.address import AddressRepository
 
 
@@ -35,14 +40,14 @@ async def create_address(
 
 @addresses_router.get(
     "/{address_id}",
-    response_model=AddressRead,
+    response_model=AddressReadAllRelations,
     name="addresses:get-address",
 )
 async def get_address(
     *,
     address_id: int,
     address_repo: AddressRepository = Depends(get_repository(AddressRepository)),
-) -> AddressRead:
+) -> AddressReadAllRelations:
     return address_repo.get_address_by_id(address_id=address_id)
 
 
@@ -60,3 +65,16 @@ async def update_address(
     return address_repo.update_address(
         address_update=address_update, address_id=address_id
     )
+
+
+@addresses_router.delete(
+    "/{address_id}",
+    response_model=AddressRead,
+    name="addresses:delete-address",
+)
+async def delete_address(
+    *,
+    address_id: int,
+    address_repo: AddressRepository = Depends(get_repository(AddressRepository)),
+) -> AddressRead:
+    return address_repo.delete_address(address_id=address_id)

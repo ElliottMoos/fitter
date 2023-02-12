@@ -2,7 +2,13 @@ from typing import List
 from sqlmodel import select, Session
 
 from .base import BaseRepository
-from app.models.address import AddressCreate, AddressRead, AddressUpdate, Address
+from app.models import (
+    AddressCreate,
+    AddressRead,
+    AddressUpdate,
+    Address,
+    AddressReadAllRelations,
+)
 
 
 class AddressRepository(BaseRepository):
@@ -19,7 +25,7 @@ class AddressRepository(BaseRepository):
         self.session.refresh(db_address)
         return db_address
 
-    def get_address_by_id(self, address_id: int) -> AddressRead:
+    def get_address_by_id(self, address_id: int) -> AddressReadAllRelations:
         return self.session.get(Address, address_id)
 
     def update_address(
@@ -36,10 +42,10 @@ class AddressRepository(BaseRepository):
         self.session.refresh(db_address)
         return db_address
 
-    def delete_address(self, address_id: int) -> bool:
+    def delete_address(self, address_id: int) -> AddressRead:
         db_address = self.session.get(Address, address_id)
         if not db_address:
-            return False
+            return
         self.session.delete(db_address)
         self.session.commit()
-        return True
+        return db_address

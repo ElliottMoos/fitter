@@ -2,7 +2,13 @@ from typing import List
 from sqlmodel import select, Session
 
 from .base import BaseRepository
-from app.models.store import StoreCreate, StoreRead, StoreUpdate, Store
+from app.models import (
+    StoreCreate,
+    StoreRead,
+    StoreUpdate,
+    Store,
+    StoreReadAllRelations,
+)
 
 
 class StoreRepository(BaseRepository):
@@ -19,7 +25,7 @@ class StoreRepository(BaseRepository):
         self.session.refresh(db_store)
         return db_store
 
-    def get_store_by_id(self, store_id: int) -> StoreRead:
+    def get_store_by_id(self, store_id: int) -> StoreReadAllRelations:
         return self.session.get(Store, store_id)
 
     def update_store(self, store_update: StoreUpdate, store_id: int) -> StoreRead:
@@ -34,10 +40,10 @@ class StoreRepository(BaseRepository):
         self.session.refresh(db_store)
         return db_store
 
-    def delete_store(self, store_id: int) -> bool:
+    def delete_store(self, store_id: int) -> StoreRead:
         db_store = self.session.get(Store, store_id)
         if not db_store:
-            return False
+            return
         self.session.delete(db_store)
         self.session.commit()
-        return True
+        return db_store

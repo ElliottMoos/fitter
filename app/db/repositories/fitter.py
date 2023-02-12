@@ -2,7 +2,13 @@ from typing import List
 from sqlmodel import select, Session
 
 from .base import BaseRepository
-from app.models.fitter import FitterCreate, FitterRead, FitterUpdate, Fitter
+from app.models import (
+    FitterCreate,
+    FitterRead,
+    FitterUpdate,
+    Fitter,
+    FitterReadAllRelations,
+)
 
 
 class FitterRepository(BaseRepository):
@@ -19,10 +25,10 @@ class FitterRepository(BaseRepository):
         self.session.refresh(db_fitter)
         return db_fitter
 
-    def get_fitter_by_id(self, fitter_id: int) -> FitterRead:
+    def get_fitter_by_id(self, fitter_id: int) -> FitterReadAllRelations:
         return self.session.get(Fitter, fitter_id)
 
-    def get_fitter_by_username(self, username: str) -> FitterRead:
+    def get_fitter_by_username(self, username: str) -> FitterReadAllRelations:
         results = self.session.exec(select(Fitter).where(Fitter.username == username))
         return results.first()
 
@@ -38,10 +44,10 @@ class FitterRepository(BaseRepository):
         self.session.refresh(db_fitter)
         return db_fitter
 
-    def delete_fitter(self, fitter_id: int) -> bool:
+    def delete_fitter(self, fitter_id: int) -> FitterRead:
         db_fitter = self.session.get(Fitter, fitter_id)
         if not db_fitter:
-            return False
+            return
         self.session.delete(db_fitter)
         self.session.commit()
-        return True
+        return db_fitter

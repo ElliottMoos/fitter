@@ -1,6 +1,6 @@
 from fastapi import Depends, Cookie
 
-from app.models.fitter import FitterRead
+from app.models import FitterRead
 from app.db.repositories.fitter import FitterRepository
 from app.api.dependencies.database import get_repository
 from app.services import auth_service

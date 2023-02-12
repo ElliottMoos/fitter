@@ -1,6 +1,6 @@
 var script = document.getElementById("calendar-script");
-var currentFitterId = script.getAttribute("data-fitter-id");
-var currentFitterRole = script.getAttribute("data-fitter-role");
+var activeFitterId = script.getAttribute("data-active-fitter-id");
+var activeFitterRole = script.getAttribute("data-active-fitter-role");
 
 function previousWeek() {
     appointmentCalendar.startDate = appointmentCalendar.startDate.addDays(-7);
@@ -63,7 +63,7 @@ var appointmentCalendar = new DayPilot.Calendar("appointments", {
 });
 
 appointmentCalendar.onEventClick = async function (args) {
-    if (currentFitterId != args.e.data.fitter_id && currentFitterRole != "Lead") {
+    if (activeFitterId != args.e.data.fitter_id && activeFitterRole != "Lead") {
         args.preventDefault();
         return;
     }
@@ -98,7 +98,7 @@ appointmentCalendar.onEventClick = async function (args) {
 };
 
 appointmentCalendar.onEventMove = async function (args) {
-    if (currentFitterId != args.e.data.fitter_id && currentFitterRole != "Lead") {
+    if (activeFitterId != args.e.data.fitter_id && activeFitterRole != "Lead") {
         args.preventDefault();
         return;
     };
@@ -118,8 +118,6 @@ appointmentCalendar.onEventMove = async function (args) {
         }
         let start = new DayPilot.Date(fitting.start);
         let end = new DayPilot.Date(fitting.end);
-        console.log((args.newStart >= start && args.newStart < end));
-        console.log(fittingOverlaps(args.newStart, args.newEnd, start, end));
         return fittingOverlaps(args.newStart, args.newEnd, start, end);
     });
     if (overlappingFittings.length > 0) {
@@ -132,7 +130,7 @@ appointmentCalendar.onEventMove = async function (args) {
 };
 
 appointmentCalendar.onEventResize = async function (args) {
-    if (currentFitterId != args.e.data.fitter_id && currentFitterRole != "Lead") {
+    if (activeFitterId != args.e.data.fitter_id && activeFitterRole != "Lead") {
         args.preventDefault();
         return;
     }
@@ -152,8 +150,6 @@ appointmentCalendar.onEventResize = async function (args) {
         }
         let start = new DayPilot.Date(fitting.start);
         let end = new DayPilot.Date(fitting.end);
-        console.log((args.newStart >= start && args.newStart < end));
-        console.log(fittingOverlaps(args.newStart, args.newEnd, start, end));
         return fittingOverlaps(args.newStart, args.newEnd, start, end);
     });
     console.log(overlappingFittings);
@@ -167,7 +163,7 @@ appointmentCalendar.onEventResize = async function (args) {
 };
 
 appointmentCalendar.onEventDelete = async function (args) {
-    if (currentFitterId != args.e.data.fitter_id && currentFitterRole != "Lead") {
+    if (activeFitterId != args.e.data.fitter_id && activeFitterRole != "Lead") {
         args.preventDefault();
         return;
     }

@@ -2,7 +2,7 @@ from typing import List
 from fastapi import Depends, APIRouter
 
 from app.api.dependencies.database import get_repository
-from app.models.store import StoreCreate, StoreRead, StoreUpdate
+from app.models import StoreCreate, StoreRead, StoreUpdate, StoreReadAllRelations
 from app.db.repositories.store import StoreRepository
 
 
@@ -35,14 +35,14 @@ async def create_store(
 
 @stores_router.get(
     "/{store_id}",
-    response_model=StoreRead,
+    response_model=StoreReadAllRelations,
     name="stores:get-store",
 )
 async def get_store(
     *,
     store_id: int,
     store_repo: StoreRepository = Depends(get_repository(StoreRepository)),
-) -> StoreRead:
+) -> StoreReadAllRelations:
     return store_repo.get_store_by_id(store_id=store_id)
 
 
@@ -58,3 +58,16 @@ async def update_store(
     store_repo: StoreRepository = Depends(get_repository(StoreRepository)),
 ) -> StoreRead:
     return store_repo.update_store(store_update=store_update, store_id=store_id)
+
+
+@stores_router.delete(
+    "/{store_id}",
+    response_model=StoreRead,
+    name="stores:delete-store",
+)
+async def delete_store(
+    *,
+    store_id: int,
+    store_repo: StoreRepository = Depends(get_repository(StoreRepository)),
+) -> StoreRead:
+    return store_repo.delete_store(store_id=store_id)

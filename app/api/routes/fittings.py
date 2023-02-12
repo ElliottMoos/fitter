@@ -4,7 +4,12 @@ from pydantic import BaseModel
 from fastapi import Depends, APIRouter, Query
 
 from app.api.dependencies.database import get_repository
-from app.models.fitting import FittingCreate, FittingRead, FittingUpdate
+from app.models import (
+    FittingCreate,
+    FittingRead,
+    FittingUpdate,
+    FittingReadAllRelations,
+)
 from app.db.repositories.fitting import FittingRepository
 
 
@@ -51,14 +56,14 @@ async def create_fitting(
 
 @fittings_router.get(
     "/{fitting_id}",
-    response_model=FittingRead,
+    response_model=FittingReadAllRelations,
     name="fittings:get-fitting",
 )
 async def get_fitting(
     *,
     fitting_id: int,
     fitting_repo: FittingRepository = Depends(get_repository(FittingRepository)),
-) -> FittingRead:
+) -> FittingReadAllRelations:
     return fitting_repo.get_fitting_by_id(fitting_id=fitting_id)
 
 
