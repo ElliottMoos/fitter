@@ -1,0 +1,155 @@
+{% extends "base.html" %} {% block nav_items %}
+<li class="nav-item">
+    <a class="nav-link" href="/">Fittings</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="/fitters">Fitters</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="/stores">Stores</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="/customers">Customers</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="#">Reports</a>
+</li>
+{% endblock nav_items %} {% block content %}
+<div class="container fluid">
+    <h2 class="mb-2">Create Fitter</h2>
+    {% for error in errors %}
+    <p class="text-danger">{{error}}</p>
+    {% endfor %}
+    <form class="row g-3" action="/create-fitter" method="post">
+        <div class="col-md-4">
+            <label for="inputFirstName" class="form-label">First name</label>
+            <input
+                type="text"
+                class="form-control"
+                id="inputFirstName"
+                name="first_name"
+                required
+            />
+        </div>
+        <div class="col-md-4">
+            <label for="inputLastName" class="form-label">Last name</label>
+            <input
+                type="text"
+                class="form-control"
+                id="inputLastName"
+                name="last_name"
+                required
+            />
+        </div>
+        <div class="col-md-4">
+            <label for="inputStore" class="form-label">Home Store</label>
+            <select
+                id="inputStore"
+                class="form-select"
+                name="store_id"
+                required
+            >
+                {% for store in stores %} {% if stores.index(store) == 0 %}
+                <option value="{{store.id}}" selected>{{store.name}}</option>
+                {% else %}
+                <option value="{{store.id}}">{{store.name}}</option>
+                {% endif %} {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label for="inputUsername" class="form-label">Username</label>
+            <input
+                type="text"
+                class="form-control"
+                id="inputUsername"
+                name="username"
+                required
+            />
+        </div>
+        <div class="col-md-4">
+            <label for="inputPassword" class="form-label">Password</label>
+            <input
+                type="password"
+                class="form-control"
+                id="inputPassword"
+                name="password"
+                required
+            />
+        </div>
+        <div class="col-md-4">
+            <label for="inputRole" class="form-label">Role</label>
+            <select id="inputRole" class="form-select" name="role" required>
+                {% for role in roles %} {% if roles.index(role) == 0 %}
+                <option value="{{role}}" selected>{{role}}</option>
+                {% else %}
+                <option value="{{role}}">{{role}}</option>
+                {% endif %} {% endfor %}
+            </select>
+        </div>
+        <div class="col-12">
+            <label for="inputBio" class="form-label">Bio</label>
+            <input
+                type="text"
+                class="form-control"
+                id="inputBio"
+                name="bio"
+                required
+            />
+        </div>
+        <div class="col-12">
+            <label for="inputStreet" class="form-label">Street</label>
+            <input
+                type="text"
+                class="form-control"
+                id="inputStreet"
+                placeholder="1234 Main St"
+                name="street"
+                required
+            />
+        </div>
+        <div class="col-12">
+            <label for="inputStreet2" class="form-label">Street 2</label>
+            <input
+                type="text"
+                class="form-control"
+                id="inputStreet2"
+                placeholder="Apartment, studio, or floor"
+                name="street_2"
+            />
+        </div>
+        <div class="col-md-6">
+            <label for="inputCity" class="form-label">City</label>
+            <input
+                type="text"
+                class="form-control"
+                id="inputCity"
+                name="city"
+                required
+            />
+        </div>
+        <div class="col-md-4">
+            <label for="inputState" class="form-label">State</label>
+            <select id="inputState" class="form-select" name="state" required>
+                {% for state in states %} {% if states.index(state) == 0 %}
+                <option value="{{state}}" selected>{{state}}</option>
+                {% else %}
+                <option value="{{state}}">{{state}}</option>
+                {% endif %} {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label for="inputZip" class="form-label">Zip</label>
+            <input
+                type="text"
+                class="form-control"
+                id="inputZip"
+                name="zip_code"
+                required
+            />
+        </div>
+        <div class="col-12">
+            <button type="submit" class="btn btn-primary">Create</button>
+        </div>
+    </form>
+</div>
+{% endblock content %}

@@ -1,0 +1,91 @@
+{% extends "base.html" %} {% block nav_items %}
+<li class="nav-item">
+    <a class="nav-link" href="/">Fittings</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="/fitters">Fitters</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="/stores">Stores</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="/customers">Customers</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="#">Reports</a>
+</li>
+{% endblock nav_items %} {% block content %}
+<div class="container fluid">
+    <div class="row">
+        <div class="col-4">
+            <div class="card mb-2">
+                <div class="card-header">
+                    {{customer.first_name}} {{customer.last_name}}
+                </div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+                        <strong>Email</strong>: {{customer.email}}
+                    </li>
+                    <li class="list-group-item">
+                        <strong>Phone</strong>: {{customer.phone}}
+                    </li>
+                    <li class="list-group-item">
+                        <strong>Address</strong>:
+                        <br />
+                        {{customer.address.street}} {{customer.address.street_2
+                        if customer.address.street_2}}
+                        <br />
+                        {{customer.address.city}}, {{customer.address.state}},
+                        {{customer.address.zip_code}}
+                    </li>
+                </ul>
+            </div>
+            <a
+                class="btn btn-sm btn-primary"
+                href="/update-customer/{{customer.id}}"
+                role="button"
+                >Update
+            </a>
+        </div>
+        <div class="col-8">
+            <div class="row gx-1">
+                <div class="col-auto"><h3>Fittings</h3></div>
+                <div class="col-auto">
+                    <a href="/" class="btn btn-sm btn-dark" role="button">+</a>
+                </div>
+            </div>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th scope="col">Start</th>
+                        <th scope="col">End</th>
+                        <th scope="col">Description</th>
+                        <th scope="col">Fitter</th>
+                        <th scope="col">Store</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for fitting in customer.fittings %}
+                    <tr>
+                        <td>{{fitting.start}}</td>
+                        <td>{{fitting.end}}</td>
+                        <td>{{fitting.text}}</td>
+                        <td>
+                            <a href="/fitters/{{fitting.fitter.id}}">
+                                {{fitting.fitter.first_name}}
+                                {{fitting.fitter.last_name}}
+                            </a>
+                        </td>
+                        <td>
+                            <a href="/stores/{{fitting.store.id}}">
+                                {{fitting.store.name}}
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock content %}

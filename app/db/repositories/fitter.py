@@ -1,5 +1,6 @@
 from typing import List
 from sqlmodel import select, Session
+from sqlalchemy.exc import IntegrityError, PendingRollbackError
 
 from .base import BaseRepository
 from app.models import (
@@ -21,7 +22,12 @@ class FitterRepository(BaseRepository):
     def create_fitter(self, fitter_create: FitterCreate) -> FitterRead:
         db_fitter = Fitter.from_orm(fitter_create)
         self.session.add(db_fitter)
-        self.session.commit()
+        try:
+            self.session.commit()
+        except (IntegrityError, PendingRollbackError) as exc:
+            self.session.rollback()
+            raise exc
+
         self.session.refresh(db_fitter)
         return db_fitter
 
@@ -38,9 +44,14 @@ class FitterRepository(BaseRepository):
             return
         fitter_data = fitter_update.dict(exclude_unset=True)
         for key, value in fitter_data.items():
-            setattr(db_fitter, key, value)
+            if value:
+                setattr(db_fitter, key, value)
         self.session.add(db_fitter)
-        self.session.commit()
+        try:
+            self.session.commit()
+        except (IntegrityError) as exc:
+            self.session.rollback()
+            raise exc
         self.session.refresh(db_fitter)
         return db_fitter
 

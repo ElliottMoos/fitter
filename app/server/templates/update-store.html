@@ -1,0 +1,116 @@
+{% extends "base.html" %} {% block nav_items %}
+<li class="nav-item">
+    <a class="nav-link" href="/">Fittings</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="/fitters">Fitters</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="/stores">Stores</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="/customers">Customers</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="#">Reports</a>
+</li>
+{% endblock nav_items %} {% block content %}
+<div class="container fluid">
+    <h2 class="mb-2">Update Store</h2>
+    {% for error in errors %}
+    <p class="text-danger">{{error}}</p>
+    {% endfor %}
+    <form class="row g-3" action="/update-store/{{store.id}}" method="post">
+        <div class="col-6">
+            <label for="inputName" class="form-label">Name</label>
+            <input
+                type="text"
+                class="form-control"
+                id="inputName"
+                name="name"
+                value="{{store.name}}"
+                required
+            />
+        </div>
+        <div class="col-6">
+            <label for="inputPhone" class="form-label">Phone</label>
+            <input
+                type="text"
+                class="form-control"
+                id="inputPhone"
+                name="phone"
+                value="{{store.phone}}"
+                required
+            />
+        </div>
+        <input
+            type="text"
+            name="address_id"
+            value="{{store.address.id}}"
+            hidden
+        />
+        <div class="col-12">
+            <label for="inputStreet" class="form-label">Street</label>
+            <input
+                type="text"
+                class="form-control"
+                id="inputStreet"
+                placeholder="1234 Main St"
+                name="street"
+                value="{{store.address.street}}"
+                required
+            />
+        </div>
+        <div class="col-12">
+            <label for="inputStreet2" class="form-label">Street 2</label>
+            <input
+                type="text"
+                class="form-control"
+                id="inputStreet2"
+                value="{{store.address.street_2 if store.address.street_2}}"
+                name="street_2"
+            />
+        </div>
+        <div class="col-md-6">
+            <label for="inputCity" class="form-label">City</label>
+            <input
+                type="text"
+                class="form-control"
+                id="inputCity"
+                name="city"
+                value="{{store.address.city}}"
+                required
+            />
+        </div>
+        <div class="col-md-4">
+            <label for="inputState" class="form-label">State</label>
+            <select id="inputState" class="form-select" name="state" required>
+                {% for state in states %} {% if state == store.address.state %}
+                <option value="{{state}}" selected>{{state}}</option>
+                {% else %}
+                <option value="{{state}}">{{state}}</option>
+                {% endif %} {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label for="inputZip" class="form-label">Zip</label>
+            <input
+                type="text"
+                class="form-control"
+                id="inputZip"
+                name="zip_code"
+                value="{{store.address.zip_code}}"
+                required
+            />
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-primary">Update</button>
+        </div>
+        <div class="col-auto">
+            <a href="/stores/{{store.id}}" role="button" class="btn btn-dark"
+                >Cancel</a
+            >
+        </div>
+    </form>
+</div>
+{% endblock content %}

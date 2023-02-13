@@ -1,10 +1,10 @@
-import re
 import random
 from datetime import datetime
 from typing import Optional, List
 from enum import Enum
 
-from pydantic import EmailStr, validator
+from pydantic import EmailStr
+from fastapi import Form
 from sqlmodel import SQLModel, Relationship, Field
 
 from .base import IDModelMixin
@@ -92,7 +92,22 @@ class AddressRead(AddressBase):
 
 
 class AddressCreate(AddressBase):
-    pass
+    @classmethod
+    def as_form(
+        cls,
+        street: str = Form(...),
+        street_2: Optional[str] = Form(default=""),
+        city: str = Form(...),
+        state: State = Form(...),
+        zip_code: str = Form(...),
+    ) -> SQLModel:
+        return cls(
+            street=street,
+            street_2=street_2,
+            city=city,
+            state=state,
+            zip_code=zip_code,
+        )
 
 
 class AddressUpdate(SQLModel):
@@ -102,8 +117,22 @@ class AddressUpdate(SQLModel):
     state: Optional[State]
     zip_code: Optional[str]
 
-    class Config:
-        use_enum_values = True
+    @classmethod
+    def as_form(
+        cls,
+        street: Optional[str] = Form(default=None),
+        street_2: Optional[str] = Form(default=None),
+        city: Optional[str] = Form(default=None),
+        state: Optional[State] = Form(default=None),
+        zip_code: Optional[str] = Form(default=None),
+    ) -> SQLModel:
+        return cls(
+            street=street,
+            street_2=street_2,
+            city=city,
+            state=state,
+            zip_code=zip_code,
+        )
 
 
 class CustomerBase(SQLModel):
@@ -113,17 +142,20 @@ class CustomerBase(SQLModel):
     phone: str
     address_id: Optional[int] = Field(default=None, foreign_key="address.id")
 
-    @validator("phone")
-    def validate_phone_number(cls, v):
-        patterns = (r"\(\w{3}\) \w{3}\-\w{4}", r"^\w{3}\-\w{4}$")
-        if not [re.search(pattern, v) for pattern in patterns]:
-            raise ValueError("Invalid phone number format.")
-        return v
-
 
 class Customer(CustomerBase, IDModelMixin, table=True):
-    address: Optional[Address] = Relationship(back_populates="customers")
-    fittings: List["Fitting"] = Relationship(back_populates="customer")
+    address: Optional[Address] = Relationship(
+        back_populates="customers",
+        sa_relationship_kwargs={
+            "cascade": "all, delete",
+        },
+    )
+    fittings: List["Fitting"] = Relationship(
+        back_populates="customer",
+        sa_relationship_kwargs={
+            "cascade": "all, delete",
+        },
+    )
 
 
 class CustomerRead(CustomerBase):
@@ -131,7 +163,20 @@ class CustomerRead(CustomerBase):
 
 
 class CustomerCreate(CustomerBase):
-    pass
+    @classmethod
+    def as_form(
+        cls,
+        first_name: str = Form(...),
+        last_name: str = Form(...),
+        email: EmailStr = Form(...),
+        phone: str = Form(...),
+    ) -> SQLModel:
+        return cls(
+            first_name=first_name,
+            last_name=last_name,
+            email=email,
+            phone=phone,
+        )
 
 
 class CustomerUpdate(SQLModel):
@@ -140,6 +185,23 @@ class CustomerUpdate(SQLModel):
     email: Optional[EmailStr]
     phone: Optional[str]
     address_id: Optional[int]
+
+    @classmethod
+    def as_form(
+        cls,
+        first_name: Optional[str] = Form(default=None),
+        last_name: Optional[str] = Form(default=None),
+        email: Optional[EmailStr] = Form(default=None),
+        phone: Optional[str] = Form(default=None),
+        address_id: Optional[int] = Form(default=None),
+    ) -> SQLModel:
+        return cls(
+            first_name=first_name,
+            last_name=last_name,
+            email=email,
+            phone=phone,
+            address_id=address_id,
+        )
 
 
 def random_hex_color():
@@ -168,9 +230,19 @@ class FitterBase(SQLModel):
 
 
 class Fitter(FitterBase, IDModelMixin, table=True):
-    fittings: List["Fitting"] = Relationship(back_populates="fitter")
+    fittings: List["Fitting"] = Relationship(
+        back_populates="fitter",
+        sa_relationship_kwargs={
+            "cascade": "all, delete",
+        },
+    )
     store: Optional["Store"] = Relationship(back_populates="fitters")
-    address: Optional[Address] = Relationship(back_populates="fitters")
+    address: Optional[Address] = Relationship(
+        back_populates="fitters",
+        sa_relationship_kwargs={
+            "cascade": "all, delete",
+        },
+    )
 
 
 class FitterRead(FitterBase):
@@ -178,7 +250,24 @@ class FitterRead(FitterBase):
 
 
 class FitterCreate(FitterBase):
-    pass
+    @classmethod
+    def as_form(
+        cls,
+        first_name: str = Form(...),
+        last_name: str = Form(...),
+        username: str = Form(...),
+        password: str = Form(...),
+        bio: str = Form(...),
+        role: Role = Form(...),
+    ) -> SQLModel:
+        return cls(
+            first_name=first_name,
+            last_name=last_name,
+            username=username,
+            password=password,
+            bio=bio,
+            role=role,
+        )
 
 
 class FitterUpdate(SQLModel):
@@ -191,8 +280,28 @@ class FitterUpdate(SQLModel):
     store_id: Optional[int]
     address_id: Optional[int]
 
-    class Config:
-        use_enum_values = True
+    @classmethod
+    def as_form(
+        cls,
+        username: Optional[str] = Form(default=None),
+        password: Optional[str] = Form(default=None),
+        first_name: Optional[str] = Form(default=None),
+        last_name: Optional[str] = Form(default=None),
+        bio: Optional[str] = Form(default=None),
+        role: Optional[Role] = Form(default=None),
+        store_id: Optional[int] = Form(default=None),
+        address_id: Optional[int] = Form(default=None),
+    ) -> SQLModel:
+        return cls(
+            username=username,
+            password=password,
+            first_name=first_name,
+            last_name=last_name,
+            bio=bio,
+            role=role,
+            store_id=store_id,
+            address_id=address_id,
+        )
 
 
 class FittingBase(SQLModel):
@@ -231,13 +340,24 @@ class FittingUpdate(SQLModel):
 
 class StoreBase(SQLModel):
     name: str
+    phone: str
     address_id: Optional[int] = Field(default=None, foreign_key="address.id")
 
 
 class Store(StoreBase, IDModelMixin, table=True):
-    address: Optional[Address] = Relationship(back_populates="stores")
+    address: Optional[Address] = Relationship(
+        back_populates="stores",
+        sa_relationship_kwargs={
+            "cascade": "all, delete",
+        },
+    )
     fitters: List[Fitter] = Relationship(back_populates="store")
-    fittings: List[Fitting] = Relationship(back_populates="store")
+    fittings: List[Fitting] = Relationship(
+        back_populates="store",
+        sa_relationship_kwargs={
+            "cascade": "all, delete",
+        },
+    )
 
 
 class StoreRead(StoreBase):
@@ -245,17 +365,34 @@ class StoreRead(StoreBase):
 
 
 class StoreCreate(StoreBase):
-    pass
+    @classmethod
+    def as_form(
+        cls,
+        name: str = Form(...),
+        phone: str = Form(...),
+    ) -> SQLModel:
+        return cls(name=name, phone=phone)
 
 
 class StoreUpdate(SQLModel):
     name: Optional[str]
+    phone: Optional[str]
     address_id: Optional[int]
+
+    @classmethod
+    def as_form(
+        cls,
+        name: Optional[str] = Form(default=None),
+        phone: Optional[str] = Form(default=None),
+        address_id: Optional[int] = Form(default=None),
+    ) -> SQLModel:
+        return cls(name=name, phone=phone, address_id=address_id)
 
 
 class StoreReadAllRelations(StoreRead):
     address: Optional[AddressRead] = None
     fitters: List[FitterRead] = []
+    fittings: List[FittingRead] = []
 
 
 class AddressReadAllRelations(AddressRead):

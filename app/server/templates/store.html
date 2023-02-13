@@ -1,0 +1,133 @@
+{% extends "base.html" %} {% block nav_items %}
+<li class="nav-item">
+    <a class="nav-link" href="/">Fittings</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="/fitters">Fitters</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="/stores">Stores</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="/customers">Customers</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="#">Reports</a>
+</li>
+{% endblock nav_items %} {% block content %}
+<div class="container fluid">
+    <div class="row">
+        <div class="col-4">
+            <div class="card mb-2">
+                <div class="card-header">{{store.name}}</div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+                        <strong>Name</strong>: {{store.name}}
+                    </li>
+                    <li class="list-group-item">
+                        <strong>Phone</strong>: {{store.phone}}
+                    </li>
+                    <li class="list-group-item">
+                        <strong>Address</strong>:
+                        <br />
+                        {{store.address.street}} {{store.address.street_2}}
+                        <br />
+                        {{store.address.city}}, {{store.address.state}},
+                        {{store.address.zip_code}}
+                    </li>
+                </ul>
+            </div>
+            {% if active_fitter.role == "Lead" %}
+            <a
+                class="btn btn-sm btn-primary"
+                href="/update-store/{{store.id}}"
+                role="button"
+                >Update
+            </a>
+            {% endif %}
+        </div>
+        <div class="col-8">
+            <div class="row gx-1">
+                <div class="col-auto"><h3>Fittings</h3></div>
+                <div class="col-auto">
+                    <a href="/" class="btn btn-sm btn-dark" role="button">+</a>
+                </div>
+            </div>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th scope="col">Start</th>
+                        <th scope="col">End</th>
+                        <th scope="col">Description</th>
+                        <th scope="col">Customer</th>
+                        <th scope="col">Fitter</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for fitting in store.fittings %}
+                    <tr>
+                        <td>{{fitting.start}}</td>
+                        <td>{{fitting.end}}</td>
+                        <td>{{fitting.text}}</td>
+                        <td>
+                            <a href="/customers/{{fitting.customer.id}}">
+                                {{fitting.customer.first_name}}
+                                {{fitting.customer.last_name}}
+                            </a>
+                        </td>
+                        <td>
+                            <a href="/fitters/{{fitting.fitter.id}}">
+                                {{fitting.fitter.first_name}}
+                                {{fitting.fitter.last_name}}
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <div class="row gx-1">
+                <div class="col-auto"><h3>Fitters</h3></div>
+                {% if active_fitter.role == "Lead" %}
+                <div class="col-auto">
+                    <a
+                        href="/create-fitter"
+                        class="btn btn-sm btn-dark"
+                        role="button"
+                        >+</a
+                    >
+                </div>
+                {% endif %}
+            </div>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th scope="col">First Name</th>
+                        <th scope="col">Last Name</th>
+                        <th scope="col">Username</th>
+                        <th scope="col">Role</th>
+                        <th scope="col"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for fitter in store.fitters %}
+                    <tr>
+                        <td>{{fitter.first_name}}</td>
+                        <td>{{fitter.last_name}}</td>
+                        <td>{{fitter.username}}</td>
+                        <td>{{fitter.role}}</td>
+                        <td>
+                            <a
+                                class="btn btn-sm btn-primary"
+                                href="/fitters/{{fitter.id}}"
+                                role="button"
+                                >Profile
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock content %}

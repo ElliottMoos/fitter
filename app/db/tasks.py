@@ -1,16 +1,28 @@
 import logging
+
 from fastapi import FastAPI
-from sqlmodel import SQLModel, create_engine
+from sqlalchemy import event
+from sqlalchemy.engine import Engine
+from sqlite3 import Connection as SQLite3Connection
+from sqlmodel import create_engine
+
 from app.models import *
+from app.core.settings import settings
 
 logger = logging.getLogger(__name__)
 
 
+@event.listens_for(Engine, "connect")
+def set_sqlite_pragma(dbapi_connection, connection_record):
+    if isinstance(dbapi_connection, SQLite3Connection):
+        cursor = dbapi_connection.cursor()
+        cursor.execute("PRAGMA foreign_keys=ON")
+        cursor.close()
+
+
 async def start_engine(app: FastAPI) -> None:
     try:
-        connect_args = {"check_same_thread": False}
-        engine = create_engine("sqlite:///database.db", connect_args=connect_args)
-        SQLModel.metadata.create_all(engine)
+        engine = create_engine(settings.DB_URL)
         app.state._engine = engine
     except Exception as e:
         logger.error("--- DB CONNECTION ERROR ---")
