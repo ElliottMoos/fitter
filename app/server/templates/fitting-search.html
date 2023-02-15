@@ -9,21 +9,23 @@
     <a class="nav-link" href="/stores">Stores</a>
 </li>
 <li class="nav-item">
-    <a class="nav-link active" aria-current="page" href="/customers"
-        >Customers</a
-    >
+    <a class="nav-link" href="/customers">Customers</a>
 </li>
 <li class="nav-item dropdown">
     <a
-        class="nav-link dropdown-toggle"
+        class="nav-link dropdown-toggle active"
         data-bs-toggle="dropdown"
         role="button"
-        href="#"
         aria-expanded="false"
+        aria-current="page"
         >Reports</a
     >
     <ul class="dropdown-menu">
-        <li><a class="dropdown-item" href="#">Fitting Search</a></li>
+        <li>
+            <a class="dropdown-item active" href="/reports/fitting-search"
+                >Fitting Search</a
+            >
+        </li>
         <li><a class="dropdown-item" href="#">Fittings Today</a></li>
         <li><a class="dropdown-item" href="#">Fittings by Fitter</a></li>
     </ul>
@@ -34,33 +36,32 @@
         <div class="col-auto">
             <form
                 class="row gy-2 gx-3 align-items-center justify-content-end mb-2"
-                action="/customers"
+                action="/reports/fitting-search"
                 method="get"
+                onsubmit="disableEmptyInputs(this)"
             >
                 <div class="col-auto">
                     <label
                         class="visually-hidden"
-                        for="autoSizingInputFirstName"
-                        >First name</label
+                        for="autoSizingInputStartDate"
+                        >Start date</label
                     >
                     <input
-                        type="text"
+                        type="date"
                         class="form-control"
-                        id="autoSizingInputFirstName"
-                        name="first_name"
-                        placeholder="First name"
+                        id="autoSizingInputStartDate"
+                        name="start_date"
                     />
                 </div>
                 <div class="col-auto">
-                    <label class="visually-hidden" for="autoSizingInputLastName"
-                        >Last name</label
+                    <label class="visually-hidden" for="autoSizingInputEndDate"
+                        >End date</label
                     >
                     <input
-                        type="text"
+                        type="date"
                         class="form-control"
-                        id="autoSizingInputLastName"
-                        name="last_name"
-                        placeholder="Last name"
+                        id="autoSizingInputEndDate"
+                        name="end_date"
                     />
                 </div>
                 <div class="col-auto">
@@ -74,35 +75,43 @@
     <table class="table table-bordered mb-2">
         <thead>
             <tr>
-                <th scope="col">First Name</th>
-                <th scope="col">Last Name</th>
-                <th scope="col">Email</th>
-                <th scope="col">Phone</th>
-                <th scope="col"></th>
+                <th scope="col">Start</th>
+                <th scope="col">End</th>
+                <th scope="col">Description</th>
+                <th scope="col">Customer</th>
+                <th scope="col">Fitter</th>
+                <th scope="col">Store</th>
             </tr>
         </thead>
         <tbody>
-            {% for customer in page.items %}
+            {% for fitting in page.items %}
             <tr>
-                <td>{{customer.first_name}}</td>
-                <td>{{customer.last_name}}</td>
-                <td>{{customer.email}}</td>
-                <td>{{customer.phone}}</td>
+                <td>{{fitting.start}}</td>
+                <td>{{fitting.end}}</td>
+                <td>{{fitting.text}}</td>
                 <td>
-                    <a
-                        class="btn btn-sm btn-primary"
-                        href="/customers/{{customer.id}}"
-                        role="button"
-                        >Profile
+                    <a href="/customers/{{fitting.customer.id}}">
+                        {{fitting.customer.first_name}}
+                        {{fitting.customer.last_name}}
+                    </a>
+                </td>
+                <td>
+                    <a href="/fitters/{{fitting.fitter.id}}">
+                        {{fitting.fitter.first_name}}
+                        {{fitting.fitter.last_name}}
+                    </a>
+                </td>
+                <td>
+                    <a href="/stores/{{fitting.store.id}}">
+                        {{fitting.store.name}}
                     </a>
                 </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
-    <a href="/create-customer" class="btn btn-dark" role="button">Create</a>
 </div>
-<nav aria-label="Customer Pagination" class="fixed-bottom">
+<nav aria-label="Fittings Search Pagination" class="fixed-bottom">
     <ul class="pagination justify-content-center">
         {% if page.page == 1 %}
         <li class="page-item disabled">
@@ -112,7 +121,7 @@
         <li class="page-item">
             <a
                 class="page-link"
-                href="/customers?page={{page.page - 1}}{{first_name_query}}{{last_name_query}}"
+                href="/reports/fitting-search?page={{page.page - 1}}{{start_date_query}}{{end_date_query}}"
                 >Previous</a
             >
         </li>
@@ -121,7 +130,7 @@
         <li class="page-item active" aria-current="page">
             <a
                 class="page-link"
-                href="/customers?page={{page_num}}{{first_name_query}}{{last_name_query}}"
+                href="/reports/fitting-search?page={{page_num}}{{start_date_query}}{{end_date_query}}"
                 >{{ page_num }}</a
             >
         </li>
@@ -129,7 +138,7 @@
         <li class="page-item">
             <a
                 class="page-link"
-                href="/customers?page={{page_num}}{{first_name_query}}{{last_name_query}}"
+                href="/reports/fitting-search?page={{page_num}}{{start_date_query}}{{end_date_query}}"
                 >{{ page_num }}</a
             >
         </li>
@@ -141,11 +150,20 @@
         <li class="page-item">
             <a
                 class="page-link"
-                href="/customers?page={{page.page + 1}}{{first_name_query}}{{last_name_query}}"
+                href="/reports/fitting-search?page={{page.page + 1}}{{start_date_query}}{{end_date_query}}"
                 >Next</a
             >
         </li>
         {% endif %}
     </ul>
 </nav>
-{% endblock content %}
+{% endblock content %} {% block scripts %}
+<script>
+    function disableEmptyInputs(form) {
+        var controls = form.elements;
+        for (var i = 0, length = controls.length; i < length; i++) {
+            controls[i].disabled = controls[i].value == "";
+        }
+    }
+</script>
+{% endblock scripts %}

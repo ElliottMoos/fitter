@@ -16,21 +16,59 @@ class FittingRepository(BaseRepository):
     def __init__(self, session: Session) -> None:
         super().__init__(session)
 
-    def get_all_fittings(self) -> List[FittingRead]:
-        return self.session.exec(select(Fitting)).all()
+    def get_all_fittings(self) -> List[FittingReadAllRelations]:
+        fittings = self.session.exec(select(Fitting)).all()
+        return [
+            FittingReadAllRelations(
+                **fitting.dict(),
+                customer=fitting.customer,
+                store=fitting.store,
+                fitter=fitting.fitter
+            )
+            for fitting in fittings
+        ]
 
-    def get_fittings_start(self, start: datetime) -> List[FittingRead]:
-        return self.session.exec(select(Fitting).where(Fitting.start >= start)).all()
+    def get_fittings_start(self, start: datetime) -> List[FittingReadAllRelations]:
+        fittings = self.session.exec(
+            select(Fitting).where(Fitting.start >= start)
+        ).all()
+        return [
+            FittingReadAllRelations(
+                **fitting.dict(),
+                customer=fitting.customer,
+                store=fitting.store,
+                fitter=fitting.fitter
+            )
+            for fitting in fittings
+        ]
 
-    def get_fittings_end(self, end: datetime) -> List[FittingRead]:
-        return self.session.exec(select(Fitting).where(Fitting.end <= end)).all()
+    def get_fittings_end(self, end: datetime) -> List[FittingReadAllRelations]:
+        fittings = self.session.exec(select(Fitting).where(Fitting.end <= end)).all()
+        return [
+            FittingReadAllRelations(
+                **fitting.dict(),
+                customer=fitting.customer,
+                store=fitting.store,
+                fitter=fitting.fitter
+            )
+            for fitting in fittings
+        ]
 
     def get_fittings_start_end(
         self, start: datetime, end: datetime
-    ) -> List[FittingRead]:
-        return self.session.exec(
+    ) -> List[FittingReadAllRelations]:
+        fittings = self.session.exec(
             select(Fitting).where(Fitting.start >= start).where(Fitting.end <= end)
         ).all()
+        return [
+            FittingReadAllRelations(
+                **fitting.dict(),
+                customer=fitting.customer,
+                store=fitting.store,
+                fitter=fitting.fitter
+            )
+            for fitting in fittings
+        ]
 
     def get_fittings_for_fitter(self, fitter_id: int) -> List[FittingRead]:
         return self.session.exec(

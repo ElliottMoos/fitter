@@ -113,7 +113,9 @@ function fittingShouldBeIgnoredInOverlapCheck(fitting, fittingToCheck) {
 
 // Initialize fitting calendar object
 var fittingCalendar = new DayPilot.Calendar("fittings", {
-    viewType: "Week",
+    viewType: "WorkWeek",
+    dayBeginsHour: 9,
+    dayEndsHour: 18,
     eventMoveHandling: "JavaScript",
     eventClickHandling: "JavaScript",
     eventResizeHandling: "JavaScript",

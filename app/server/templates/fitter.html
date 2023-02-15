@@ -11,8 +11,20 @@
 <li class="nav-item">
     <a class="nav-link" href="/customers">Customers</a>
 </li>
-<li class="nav-item">
-    <a class="nav-link" href="#">Reports</a>
+<li class="nav-item dropdown">
+    <a
+        class="nav-link dropdown-toggle"
+        data-bs-toggle="dropdown"
+        role="button"
+        href="#"
+        aria-expanded="false"
+        >Reports</a
+    >
+    <ul class="dropdown-menu">
+        <li><a class="dropdown-item" href="#">Fitting Search</a></li>
+        <li><a class="dropdown-item" href="#">Fittings Today</a></li>
+        <li><a class="dropdown-item" href="#">Fittings by Fitter</a></li>
+    </ul>
 </li>
 {% endblock nav_items %} {% block content %}
 <div class="container fluid">

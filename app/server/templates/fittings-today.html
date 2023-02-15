@@ -1,6 +1,6 @@
 {% extends "base.html" %} {% block nav_items %}
 <li class="nav-item">
-    <a class="nav-link active" aria-current="page" href="#">Fittings</a>
+    <a class="nav-link" href="/">Fittings</a>
 </li>
 <li class="nav-item">
     <a class="nav-link" href="/fitters">Fitters</a>
@@ -13,10 +13,11 @@
 </li>
 <li class="nav-item dropdown">
     <a
-        class="nav-link dropdown-toggle"
+        class="nav-link dropdown-toggle active"
         data-bs-toggle="dropdown"
         role="button"
         aria-expanded="false"
+        aria-current="page"
         >Reports</a
     >
     <ul class="dropdown-menu">
@@ -26,7 +27,7 @@
             >
         </li>
         <li>
-            <a class="dropdown-item" href="/reports/fittings-today"
+            <a class="dropdown-item active" href="/reports/fittings-today"
                 >Fittings Today</a
             >
         </li>
@@ -34,27 +35,11 @@
     </ul>
 </li>
 {% endblock nav_items %} {% block content %}
-<div class="container fluid">
-    <div
-        class="btn-toolbar justify-content-between mb-2"
-        role="toolbar"
-        aria-label="Calendar navigation toolbar"
-    >
-        <button type="button" class="btn btn-dark" onclick="previousWeek()">
-            Previous
-        </button>
-        <button type="button" class="btn btn-dark" onclick="nextWeek()">
-            Next
-        </button>
-    </div>
-    <div id="fittings"></div>
+<div class="container fluid d-flex flex-column align-items-center">
+    <h2>Fittings Today</h2>
+    <div style="width: 800px"><canvas id="fittings-today"></canvas></div>
 </div>
 {% endblock content %} {% block scripts %}
-<script src="{{ url_for('static', path='/js/daypilot-all.min.js') }}"></script>
-<script
-    id="calendar-script"
-    src="{{ url_for('static', path='/js/calendar.js') }}"
-    data-active-fitter-id="{{ active_fitter.id }}"
-    data-active-fitter-role="{{ active_fitter.role }}"
-></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{{ url_for('static', path='/js/fittings-today.js') }}"></script>
 {% endblock scripts %}

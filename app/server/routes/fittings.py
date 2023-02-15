@@ -23,13 +23,13 @@ class FittingsStartEndFilter(BaseModel):
 
 @fittings_router.get(
     "",
-    response_model=List[FittingRead],
+    response_model=List[FittingReadAllRelations],
     name="fittings:get-fittings",
 )
 async def get_fittings(
     start_end_filter: FittingsStartEndFilter = Depends(),
     fitting_repo: FittingRepository = Depends(get_repository(FittingRepository)),
-) -> List[FittingRead]:
+) -> List[FittingReadAllRelations]:
     if start_end_filter.start and start_end_filter.end:
         return fitting_repo.get_fittings_start_end(
             start_end_filter.start, start_end_filter.end
