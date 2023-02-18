@@ -1,9 +1,9 @@
 from typing import List
 from fastapi import Depends, APIRouter, Request
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import RedirectResponse
+from fastapi.exceptions import HTTPException
 
-from app.server.dependencies.auth import get_fitter_from_session_token
+from app.server.dependencies.auth import active_fitter
 from app.server.dependencies.pagination import get_paginator, Paginator
 from app.server.dependencies.database import get_repository
 from app.models import (
@@ -91,20 +91,18 @@ async def stores_page(
     request: Request,
     paginator: Paginator[StoreRead] = Depends(get_paginator(StoreRead)),
     store_repo: StoreRepository = Depends(get_repository(StoreRepository)),
-    active_fitter: FitterRead = Depends(get_fitter_from_session_token),
+    active_fitter: FitterRead = Depends(active_fitter),
 ):
-    if active_fitter:
-        page = paginator.paginate(store_repo.get_all_stores())
-        return templates.TemplateResponse(
-            "stores.html",
-            {
-                "title": "Fittr - Stores",
-                "request": request,
-                "page": page,
-                "active_fitter": active_fitter,
-            },
-        )
-    return RedirectResponse("/login")
+    page = paginator.paginate(store_repo.get_all_stores())
+    return templates.TemplateResponse(
+        "stores.html",
+        {
+            "title": "Fittr - Stores",
+            "request": request,
+            "page": page,
+            "active_fitter": active_fitter,
+        },
+    )
 
 
 @stores_template_router.get("/{store_id}", name="stores:store-page")
@@ -113,18 +111,17 @@ async def store_page(
     store_id: int,
     request: Request,
     store_repo: StoreRepository = Depends(get_repository(StoreRepository)),
-    active_fitter: FitterRead = Depends(get_fitter_from_session_token),
+    active_fitter: FitterRead = Depends(active_fitter),
 ):
     store = store_repo.get_store_by_id(store_id=store_id)
-    if active_fitter:
-        if store:
-            return templates.TemplateResponse(
-                "store.html",
-                {
-                    "title": "Fittr - Stores",
-                    "request": request,
-                    "store": store,
-                    "active_fitter": active_fitter,
-                },
-            )
-    return RedirectResponse("/login")
+    if store:
+        return templates.TemplateResponse(
+            "store.html",
+            {
+                "title": "Fittr - Stores",
+                "request": request,
+                "store": store,
+                "active_fitter": active_fitter,
+            },
+        )
+    raise HTTPException(status_code=404, detail="Store not found")

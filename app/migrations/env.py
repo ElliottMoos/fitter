@@ -1,7 +1,7 @@
 import os
 from logging.config import fileConfig
 
-from sqlalchemy import engine_from_config
+from sqlalchemy import engine_from_config, create_engine
 from sqlalchemy import pool
 
 from alembic import context
@@ -19,6 +19,7 @@ if config.config_file_name is not None:
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
+from app.core.settings import settings
 from app.models.models import *
 from app.models.models import IDModelMixin
 
@@ -31,10 +32,10 @@ target_metadata = IDModelMixin.metadata
 
 
 def get_url():
-    user = os.getenv("POSTGRES_USER", "postgres")
-    password = os.getenv("POSTGRES_PASSWORD", "")
-    server = os.getenv("POSTGRES_SERVER", "db")
-    db = os.getenv("POSTGRES_DB", "app")
+    user = settings.POSTGRES_USER
+    password = settings.POSTGRES_PASSWORD
+    server = settings.POSTGRES_SERVER
+    db = settings.POSTGRES_DB
     return f"postgresql+psycopg2://{user}:{password}@{server}/{db}"
 
 
@@ -69,8 +70,20 @@ def run_migrations_online() -> None:
     and associate a connection with the context.
 
     """
+    url = get_url()
+    DB_URL = f"{url}_test" if os.environ.get("TESTING") else url
+
+    # handle testing config for migrations
+    if os.environ.get("TESTING"):
+        # connect to primary db
+        default_engine = create_engine(url, isolation_level="AUTOCOMMIT")
+        # drop testing db if it exists and create a fresh one
+        with default_engine.connect() as default_conn:
+            default_conn.execute(f"DROP DATABASE IF EXISTS {settings.POSTGRES_DB}_test")
+            default_conn.execute(f"CREATE DATABASE {settings.POSTGRES_DB}_test")
+
     configuration = config.get_section(config.config_ini_section)
-    configuration["sqlalchemy.url"] = get_url()
+    configuration["sqlalchemy.url"] = DB_URL
     connectable = engine_from_config(
         configuration,
         prefix="sqlalchemy.",

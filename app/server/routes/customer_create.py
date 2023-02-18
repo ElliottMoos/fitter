@@ -3,7 +3,7 @@ from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 
 from app.server.dependencies.database import get_repository
-from app.server.dependencies.auth import get_fitter_from_session_token
+from app.server.dependencies.auth import active_fitter
 from app.db.repositories.customer import CustomerRepository
 from app.db.repositories.address import AddressRepository
 from app.models import State, CustomerCreate, AddressCreate, FitterRead
@@ -17,35 +17,32 @@ templates = Jinja2Templates(directory="app/server/templates")
 async def create_customer_page(
     *,
     request: Request,
-    active_fitter: FitterRead = Depends(get_fitter_from_session_token),
+    active_fitter: FitterRead = Depends(active_fitter),
 ):
-    if active_fitter:
-        return templates.TemplateResponse(
-            "create-customer.html",
-            {
-                "title": "Fittr - Create Customer",
-                "request": request,
-                "active_fitter": active_fitter,
-                "states": list(
-                    map(lambda state: state.value, State._member_map_.values())
-                ),
-            },
-        )
-    return RedirectResponse("/login")
+    return templates.TemplateResponse(
+        "create-customer.html",
+        {
+            "title": "Fittr - Create Customer",
+            "request": request,
+            "active_fitter": active_fitter,
+            "states": list(map(lambda state: state.value, State._member_map_.values())),
+        },
+    )
 
 
-@customer_create_router.post("", name="customer-create:create-customer-page-form")
+@customer_create_router.post(
+    "",
+    name="customer-create:create-customer-page-form",
+    dependencies=[Depends(active_fitter)],
+)
 async def create_customer_page_form(
     *,
     customer_create: CustomerCreate = Depends(CustomerCreate.as_form),
     address_create: AddressCreate = Depends(AddressCreate.as_form),
     customer_repo: CustomerRepository = Depends(get_repository(CustomerRepository)),
     address_repo: AddressRepository = Depends(get_repository(AddressRepository)),
-    active_fitter: FitterRead = Depends(get_fitter_from_session_token),
 ):
-    if active_fitter:
-        db_address = address_repo.create_address(address_create=address_create)
-        customer_create.address_id = db_address.id
-        customer_repo.create_customer(customer_create=customer_create)
-        return RedirectResponse("/customers", status_code=303)
-    return RedirectResponse("/login")
+    db_address = address_repo.create_address(address_create=address_create)
+    customer_create.address_id = db_address.id
+    customer_repo.create_customer(customer_create=customer_create)
+    return RedirectResponse("/customers", status_code=303)

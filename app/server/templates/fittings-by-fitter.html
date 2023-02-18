@@ -1,0 +1,49 @@
+{% extends "base.html" %} {% block nav_items %}
+<li class="nav-item">
+    <a class="nav-link" href="/">Fittings</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="/fitters">Fitters</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="/stores">Stores</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="/customers">Customers</a>
+</li>
+<li class="nav-item dropdown">
+    <a
+        class="nav-link dropdown-toggle active"
+        data-bs-toggle="dropdown"
+        role="button"
+        aria-expanded="false"
+        aria-current="page"
+        >Reports</a
+    >
+    <ul class="dropdown-menu">
+        <li>
+            <a class="dropdown-item" href="/reports/fitting-search"
+                >Fitting Search</a
+            >
+        </li>
+        <li>
+            <a class="dropdown-item" href="/reports/fittings-today"
+                >Fittings Today</a
+            >
+        </li>
+        <li>
+            <a class="dropdown-item active" href="/reports/fittings-by-fitter"
+                >Fittings by Fitter</a
+            >
+        </li>
+    </ul>
+</li>
+{% endblock nav_items %} {% block content %}
+<div class="container fluid d-flex flex-column align-items-center">
+    <h2>Fittings by Fitter</h2>
+    <div style="width: 800px"><canvas id="fittings-by-fitter"></canvas></div>
+</div>
+{% endblock content %} {% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{{ url_for('static', path='/js/fittings-by-fitter.js') }}"></script>
+{% endblock scripts %}

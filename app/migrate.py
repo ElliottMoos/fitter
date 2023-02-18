@@ -9,8 +9,8 @@ logger = logging.getLogger(__name__)
 
 def migrate(revision: str = "head") -> None:
     logger.info(f"Running migrations for revision: {revision}")
-    config = Config(file_="/app/alembic.ini")
-    config.set_main_option("script_location", "/app/migrations")
+    config = Config(file_="/fitter/app/alembic.ini")
+    config.set_main_option("script_location", "/fitter/app/migrations")
     config.set_main_option("sqlalchemy.url", settings.DB_URL)
 
     command.upgrade(config=config, revision=revision)

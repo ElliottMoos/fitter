@@ -11,6 +11,8 @@ def get_session(request: Request):
 
 def get_repository(repo_type: Type[BaseRepository]) -> Callable:
     def get_repo(session: Session = Depends(get_session)) -> Type[BaseRepository]:
-        return repo_type(session)
+        repo = repo_type(session)
+        yield repo
+        repo.session.close()
 
     return get_repo

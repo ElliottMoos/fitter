@@ -6,7 +6,7 @@ from fastapi.templating import Jinja2Templates
 
 from app.server.dependencies.pagination import Paginator, get_paginator
 from app.server.dependencies.database import get_repository
-from app.server.dependencies.auth import get_fitter_from_session_token
+from app.server.dependencies.auth import active_fitter
 from app.db.repositories.fitting import FittingRepository
 from app.db.repositories.fitter import FitterRepository
 from app.models import FittingReadAllRelations, FitterRead
@@ -66,59 +66,71 @@ async def fitting_search_page(
         get_paginator(FittingReadAllRelations)
     ),
     fitting_repo: FittingRepository = Depends(get_repository(FittingRepository)),
-    active_fitter: FitterRead = Depends(get_fitter_from_session_token),
+    active_fitter: FitterRead = Depends(active_fitter),
 ):
-    if active_fitter:
-        page = None
+    page = None
 
-        if start_date and end_date:
-            page = paginator.paginate(
-                fitting_repo.get_fittings_start_end(
-                    start=datetime(start_date.year, start_date.month, start_date.day),
-                    end=datetime(end_date.year, end_date.month, end_date.day, 23),
-                )
+    if start_date and end_date:
+        page = paginator.paginate(
+            fitting_repo.get_fittings_start_end(
+                start=datetime(start_date.year, start_date.month, start_date.day),
+                end=datetime(end_date.year, end_date.month, end_date.day, 23),
             )
-        elif start_date and not end_date:
-            page = paginator.paginate(
-                fitting_repo.get_fittings_start(
-                    start=datetime(start_date.year, start_date.month, start_date.day)
-                )
-            )
-        elif end_date and not start_date:
-            page = paginator.paginate(
-                fitting_repo.get_fittings_end(
-                    end=datetime(end_date.year, end_date.month, end_date.day, 23)
-                )
-            )
-        else:
-            page = paginator.paginate(fitting_repo.get_all_fittings())
-        return templates.TemplateResponse(
-            "fitting-search.html",
-            {
-                "title": "Fittr - Reports",
-                "request": request,
-                "page": page,
-                "active_fitter": active_fitter,
-                "start_date_query": f"&start_date={start_date}" if start_date else None,
-                "end_date_query": f"&end_date={end_date}" if end_date else None,
-            },
         )
-    return RedirectResponse("/login")
+    elif start_date and not end_date:
+        page = paginator.paginate(
+            fitting_repo.get_fittings_start(
+                start=datetime(start_date.year, start_date.month, start_date.day)
+            )
+        )
+    elif end_date and not start_date:
+        page = paginator.paginate(
+            fitting_repo.get_fittings_end(
+                end=datetime(end_date.year, end_date.month, end_date.day, 23)
+            )
+        )
+    else:
+        page = paginator.paginate(fitting_repo.get_all_fittings())
+    return templates.TemplateResponse(
+        "fitting-search.html",
+        {
+            "title": "Fittr - Reports",
+            "request": request,
+            "page": page,
+            "active_fitter": active_fitter,
+            "start_date_query": f"&start_date={start_date}" if start_date else None,
+            "end_date_query": f"&end_date={end_date}" if end_date else None,
+        },
+    )
 
 
 @reports_template_router.get("/fittings-today", name="reports:fittings-today")
 async def fittings_today_page(
     *,
     request: Request,
-    active_fitter: FitterRead = Depends(get_fitter_from_session_token),
+    active_fitter: FitterRead = Depends(active_fitter),
 ):
-    if active_fitter:
-        return templates.TemplateResponse(
-            "fittings-today.html",
-            {
-                "title": "Fittr - Reports",
-                "request": request,
-                "active_fitter": active_fitter,
-            },
-        )
-    return RedirectResponse("/login")
+    return templates.TemplateResponse(
+        "fittings-today.html",
+        {
+            "title": "Fittr - Reports",
+            "request": request,
+            "active_fitter": active_fitter,
+        },
+    )
+
+
+@reports_template_router.get("/fittings-by-fitter", name="reports:fittings-by-fitter")
+async def fittings_by_fitter_page(
+    *,
+    request: Request,
+    active_fitter: FitterRead = Depends(active_fitter),
+):
+    return templates.TemplateResponse(
+        "fittings-by-fitter.html",
+        {
+            "title": "Fittr - Reports",
+            "request": request,
+            "active_fitter": active_fitter,
+        },
+    )

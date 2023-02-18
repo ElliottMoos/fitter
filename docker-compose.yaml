@@ -20,6 +20,8 @@ services:
       - db
     env_file:
       - .env
+    ports:
+      - "8081:80"
   
   server:
     depends_on:
@@ -28,6 +30,7 @@ services:
       - .env
     build:
       context: .
+      target: prod
     ports:
       - "8080:80"
   

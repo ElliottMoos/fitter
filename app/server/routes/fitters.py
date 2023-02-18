@@ -1,10 +1,10 @@
 from typing import List
 from fastapi import Depends, APIRouter, Request
-from fastapi.responses import RedirectResponse
+from fastapi.exceptions import HTTPException
 from fastapi.templating import Jinja2Templates
 
 from app.services import auth_service
-from app.server.dependencies.auth import get_fitter_from_session_token
+from app.server.dependencies.auth import active_fitter
 from app.server.dependencies.database import get_repository
 from app.server.dependencies.pagination import Paginator, get_paginator
 from app.models import FitterCreate, FitterRead, FitterUpdate, FitterReadAllRelations
@@ -87,20 +87,18 @@ async def fitters_page(
     request: Request,
     paginator: Paginator[FitterRead] = Depends(get_paginator(FitterRead)),
     fitter_repo: FitterRepository = Depends(get_repository(FitterRepository)),
-    active_fitter: FitterRead = Depends(get_fitter_from_session_token),
+    active_fitter: FitterRead = Depends(active_fitter),
 ):
-    if active_fitter:
-        page = paginator.paginate(fitter_repo.get_all_fitters())
-        return templates.TemplateResponse(
-            "fitters.html",
-            {
-                "title": "Fittr - Fitters",
-                "request": request,
-                "page": page,
-                "active_fitter": active_fitter,
-            },
-        )
-    return RedirectResponse("/login")
+    page = paginator.paginate(fitter_repo.get_all_fitters())
+    return templates.TemplateResponse(
+        "fitters.html",
+        {
+            "title": "Fittr - Fitters",
+            "request": request,
+            "page": page,
+            "active_fitter": active_fitter,
+        },
+    )
 
 
 @fitters_template_router.get("/{fitter_id}", name="fitters:fitter-page")
@@ -109,18 +107,17 @@ async def fitter_page(
     fitter_id: int,
     request: Request,
     fitter_repo: FitterRepository = Depends(get_repository(FitterRepository)),
-    active_fitter: FitterRead = Depends(get_fitter_from_session_token),
+    active_fitter: FitterRead = Depends(active_fitter),
 ):
     fitter = fitter_repo.get_fitter_by_id(fitter_id=fitter_id)
-    if active_fitter:
-        if fitter:
-            return templates.TemplateResponse(
-                "fitter.html",
-                {
-                    "title": "Fittr - Fitter",
-                    "request": request,
-                    "fitter": fitter,
-                    "active_fitter": active_fitter,
-                },
-            )
-    return RedirectResponse("/login")
+    if fitter:
+        return templates.TemplateResponse(
+            "fitter.html",
+            {
+                "title": "Fittr - Fitter",
+                "request": request,
+                "fitter": fitter,
+                "active_fitter": active_fitter,
+            },
+        )
+    raise HTTPException(status_code=404, detail="Fitter not found")

@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Request, Depends
 from starlette.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, Response
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 
@@ -8,7 +8,10 @@ from app.core.settings import settings
 from app.core import tasks
 from app.server.routes import api_router, template_router
 from app.models import FitterRead
-from app.server.dependencies.auth import get_fitter_from_session_token
+from app.server.dependencies.auth import (
+    active_fitter,
+    RequiresLoginException,
+)
 
 
 def get_application():
@@ -36,21 +39,27 @@ if settings.BACKEND_CORS_ORIGINS:
         allow_headers=["*"],
     )
 
+# Handle unauthorized user requests
+@app.exception_handler(RequiresLoginException)
+async def unauthorized_user_handler(
+    request: Request, exc: RequiresLoginException
+) -> Response:
+    return RedirectResponse(url="/login")
+
+
 templates = Jinja2Templates(directory="app/server/templates")
 
 
 @app.get("/", response_class=HTMLResponse)
 async def home(
     request: Request,
-    active_fitter: FitterRead = Depends(get_fitter_from_session_token),
+    active_fitter: FitterRead = Depends(active_fitter),
 ):
-    if active_fitter:
-        return templates.TemplateResponse(
-            "index.html",
-            {
-                "title": "Fittr - Home",
-                "request": request,
-                "active_fitter": active_fitter,
-            },
-        )
-    return RedirectResponse("/login")
+    return templates.TemplateResponse(
+        "index.html",
+        {
+            "title": "Fittr - Fittings",
+            "request": request,
+            "active_fitter": active_fitter,
+        },
+    )

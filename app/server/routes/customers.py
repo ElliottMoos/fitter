@@ -1,18 +1,18 @@
 from typing import List, Optional
-from fastapi import Depends, APIRouter, Request, Form, Query
+from fastapi import Depends, APIRouter, Request, Query
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import RedirectResponse
+from fastapi.exceptions import HTTPException
 
-from app.server.dependencies.auth import get_fitter_from_session_token
+from app.server.dependencies.auth import active_fitter
 from app.server.dependencies.database import get_repository
-from app.server.dependencies.pagination import Page, Paginator, get_paginator
+from app.server.dependencies.pagination import Paginator, get_paginator
 from app.models import (
     CustomerCreate,
     CustomerRead,
     CustomerUpdate,
     CustomerReadAllRelations,
 )
-from app.models import FitterRead, State
+from app.models import FitterRead
 from app.db.repositories.customer import CustomerRepository
 
 
@@ -95,27 +95,14 @@ async def customers_page(
     last_name: Optional[str] = Query(default=""),
     paginator: Paginator[CustomerRead] = Depends(get_paginator(CustomerRead)),
     customer_repo: CustomerRepository = Depends(get_repository(CustomerRepository)),
-    active_fitter: FitterRead = Depends(get_fitter_from_session_token),
+    active_fitter: FitterRead = Depends(active_fitter),
 ):
-    if active_fitter:
-        if first_name or last_name:
-            page = paginator.paginate(
-                customer_repo.get_customers_name_search(
-                    first_name=first_name, last_name=last_name
-                )
+    if first_name or last_name:
+        page = paginator.paginate(
+            customer_repo.get_customers_name_search(
+                first_name=first_name, last_name=last_name
             )
-            return templates.TemplateResponse(
-                "customers.html",
-                {
-                    "title": "Fittr - Customers",
-                    "request": request,
-                    "page": page,
-                    "active_fitter": active_fitter,
-                    "first_name_query": f"&first_name={first_name}",
-                    "last_name_query": f"&last_name={last_name}",
-                },
-            )
-        page = paginator.paginate(customer_repo.get_all_customers())
+        )
         return templates.TemplateResponse(
             "customers.html",
             {
@@ -123,9 +110,20 @@ async def customers_page(
                 "request": request,
                 "page": page,
                 "active_fitter": active_fitter,
+                "first_name_query": f"&first_name={first_name}",
+                "last_name_query": f"&last_name={last_name}",
             },
         )
-    return RedirectResponse("/login")
+    page = paginator.paginate(customer_repo.get_all_customers())
+    return templates.TemplateResponse(
+        "customers.html",
+        {
+            "title": "Fittr - Customers",
+            "request": request,
+            "page": page,
+            "active_fitter": active_fitter,
+        },
+    )
 
 
 @customers_template_router.get("/{customer_id}", name="customers:customer-page")
@@ -134,18 +132,17 @@ async def customers_page(
     customer_id: int,
     request: Request,
     customer_repo: CustomerRepository = Depends(get_repository(CustomerRepository)),
-    active_fitter: FitterRead = Depends(get_fitter_from_session_token),
+    active_fitter: FitterRead = Depends(active_fitter),
 ):
     customer = customer_repo.get_customer_by_id(customer_id=customer_id)
-    if active_fitter:
-        if customer:
-            return templates.TemplateResponse(
-                "customer.html",
-                {
-                    "title": "Fittr - Customer",
-                    "request": request,
-                    "customer": customer,
-                    "active_fitter": active_fitter,
-                },
-            )
-    return RedirectResponse("/login")
+    if customer:
+        return templates.TemplateResponse(
+            "customer.html",
+            {
+                "title": "Fittr - Customer",
+                "request": request,
+                "customer": customer,
+                "active_fitter": active_fitter,
+            },
+        )
+    raise HTTPException(status_code=404, detail="Customer not found")

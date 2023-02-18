@@ -21,9 +21,21 @@
         >Reports</a
     >
     <ul class="dropdown-menu">
-        <li><a class="dropdown-item" href="#">Fitting Search</a></li>
-        <li><a class="dropdown-item" href="#">Fittings Today</a></li>
-        <li><a class="dropdown-item" href="#">Fittings by Fitter</a></li>
+        <li>
+            <a class="dropdown-item" href="/reports/fitting-search"
+                >Fitting Search</a
+            >
+        </li>
+        <li>
+            <a class="dropdown-item" href="/reports/fittings-today"
+                >Fittings Today</a
+            >
+        </li>
+        <li>
+            <a class="dropdown-item" href="/reports/fittings-by-fitter"
+                >Fittings by Fitter</a
+            >
+        </li>
     </ul>
 </li>
 {% endblock nav_items %} {% block content %}
@@ -52,6 +64,14 @@
                         role="button"
                         >Profile
                     </a>
+                    {% if active_fitter.role == "Lead" %}
+                    <a
+                        class="btn btn-sm btn-danger"
+                        href="/delete-fitter/{{fitter.id}}"
+                        role="button"
+                        >Delete
+                    </a>
+                    {% endif %}
                 </td>
             </tr>
             {% endfor %}

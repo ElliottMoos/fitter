@@ -1,6 +1,6 @@
 {% extends "base.html" %} {% block nav_items %}
 <li class="nav-item">
-    <a class="nav-link active" aria-current="page" href="#">Fittings</a>
+    <a class="nav-link active" aria-current="page" href="/">Fittings</a>
 </li>
 <li class="nav-item">
     <a class="nav-link" href="/fitters">Fitters</a>
@@ -30,7 +30,11 @@
                 >Fittings Today</a
             >
         </li>
-        <li><a class="dropdown-item" href="#">Fittings by Fitter</a></li>
+        <li>
+            <a class="dropdown-item" href="/reports/fittings-by-fitter"
+                >Fittings by Fitter</a
+            >
+        </li>
     </ul>
 </li>
 {% endblock nav_items %} {% block content %}
