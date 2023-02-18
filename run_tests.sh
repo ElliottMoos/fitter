@@ -3,7 +3,8 @@
 set -e
 
 # Run local postgres database
-docker-compose up -d db
+docker-compose --profile db \
+up -d
 
 docker build \
 --target export-test-results \

@@ -3,12 +3,12 @@ from pydantic import BaseSettings, validator, AnyHttpUrl
 
 
 class Settings(BaseSettings):
-    PROJECT_NAME: str = "Fitter"
+    PROJECT_NAME: str = "Fittr"
     PROJECT_VERSION: str = "0.1.0"
     SECRET_KEY: str = "secret"
-    JWT_ISSUER: str = "fitter.com"
+    JWT_ISSUER: str = "fittr.com"
     JWT_ALGORITHM: str = "HS256"
-    JWT_AUDIENCE: str = "fitter:auth"
+    JWT_AUDIENCE: str = "fittr:auth"
     SESSION_TOKEN_EXPIRES_MINUTES: int = 480
     POSTGRES_USER: str = "postgres"
     POSTGRES_PASSWORD: str

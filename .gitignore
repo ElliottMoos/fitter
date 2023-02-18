@@ -23,7 +23,7 @@ cover/
 results.txt
 
 # Environments
-.env
+.env*
 .venv
 
 # sqlite

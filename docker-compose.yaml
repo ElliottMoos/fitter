@@ -1,6 +1,36 @@
 version: "3.3"
 services:
+  nginx:
+    profiles:
+      - prod
+      - reverseproxy
+    image: nginx:1.15-alpine
+    restart: unless-stopped
+    volumes:
+      - ./data/nginx:/etc/nginx/conf.d
+      - ./data/certbot/conf:/etc/letsencrypt
+      - ./data/certbot/www:/var/www/certbot
+    ports:
+      - "80:80"
+      - "443:443"
+    command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
+
+  certbot:
+    profiles:
+      - prod
+      - letsencrypt
+    image: certbot/certbot
+    entrypoint: ""
+    command: sh -c "certbot certonly --webroot -w /var/www/certbot -d capstone.elliottmoos.com --text --agree-tos --email elliott.moos@gmail.com --rsa-key-size 4096 --verbose --keep-until-expiring --preferred-challenges=http"
+    volumes:
+      - ./data/certbot/conf:/etc/letsencrypt
+      - ./data/certbot/www:/var/www/certbot
+
   db:
+    profiles:
+      - db
+      - local
+      - prod
     image: postgres:13
     volumes:
       - app-db-data:/var/lib/postgresql/data/pgdata
@@ -13,6 +43,9 @@ services:
       - "5432:5432"
 
   pgadmin:
+    profiles:
+      - db
+      - local
     image: dpage/pgadmin4
     networks:
       - default
@@ -23,11 +56,26 @@ services:
     ports:
       - "8081:80"
   
-  server:
+  server_local:
+    profiles:
+      - local
     depends_on:
       - db
     env_file:
       - .env
+    build:
+      context: .
+      target: prod
+    ports:
+      - "8080:80"
+    
+  server_prod:
+    profiles:
+      - prod
+    depends_on:
+      - db
+    env_file:
+      - .env.prod
     build:
       context: .
       target: prod
