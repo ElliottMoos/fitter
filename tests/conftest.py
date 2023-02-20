@@ -149,6 +149,7 @@ def expert_client(app: FastAPI, expert_fitter_dep, get_session_dep) -> TestClien
     app.dependency_overrides[get_session] = get_session_dep
     app.dependency_overrides[active_fitter] = expert_fitter_dep
     client = TestClient(app)
+    client.follow_redirects = False
     return client
 
 
@@ -165,4 +166,5 @@ def lead_client(app: FastAPI, lead_fitter_dep, get_session_dep) -> TestClient:
     app.dependency_overrides[get_session] = get_session_dep
     app.dependency_overrides[active_fitter] = lead_fitter_dep
     client = TestClient(app)
+    client.follow_redirects = False
     return client

@@ -6,7 +6,7 @@ from sqlalchemy.exc import IntegrityError
 
 from app.services import auth_service
 from app.server.dependencies.database import get_repository
-from app.server.dependencies.auth import lead_fitter
+from app.server.dependencies.auth import active_fitter
 from app.db.repositories.store import StoreRepository
 from app.db.repositories.fitter import FitterRepository
 from app.db.repositories.address import AddressRepository
@@ -24,25 +24,29 @@ async def update_fitter_page(
     request: Request,
     fitter_repo: FitterRepository = Depends(get_repository(FitterRepository)),
     store_repo: StoreRepository = Depends(get_repository(StoreRepository)),
-    lead_fitter: FitterRead = Depends(lead_fitter),
+    active_fitter: FitterRead = Depends(active_fitter),
 ):
-    fitter = fitter_repo.get_fitter_by_id(fitter_id=fitter_id)
-    if fitter:
-        return templates.TemplateResponse(
-            "update-fitter.html",
-            {
-                "title": "Fittr - Update Fitter",
-                "request": request,
-                "active_fitter": lead_fitter,
-                "states": list(
-                    map(lambda state: state.value, State._member_map_.values())
-                ),
-                "roles": list(map(lambda role: role.value, Role._member_map_.values())),
-                "fitter": fitter,
-                "stores": store_repo.get_all_stores(),
-            },
-        )
-    raise HTTPException(status_code=404, detail="Fitter not found")
+    if active_fitter.role == "Lead" or active_fitter.id == fitter_id:
+        fitter = fitter_repo.get_fitter_by_id(fitter_id=fitter_id)
+        if fitter:
+            return templates.TemplateResponse(
+                "update-fitter.html",
+                {
+                    "title": "Fittr - Update Fitter",
+                    "request": request,
+                    "active_fitter": active_fitter,
+                    "states": list(
+                        map(lambda state: state.value, State._member_map_.values())
+                    ),
+                    "roles": list(
+                        map(lambda role: role.value, Role._member_map_.values())
+                    ),
+                    "fitter": fitter,
+                    "stores": store_repo.get_all_stores(),
+                },
+            )
+        raise HTTPException(status_code=404, detail="Fitter not found")
+    raise HTTPException(status_code=403, detail="Unauthorized")
 
 
 @fitter_update_router.post("/{fitter_id}", name="fitter-update:update-fitter-page-form")
@@ -56,39 +60,45 @@ async def update_fitter_page_form(
     fitter_repo: FitterRepository = Depends(get_repository(FitterRepository)),
     store_repo: StoreRepository = Depends(get_repository(StoreRepository)),
     address_repo: AddressRepository = Depends(get_repository(AddressRepository)),
-    lead_fitter: FitterRead = Depends(lead_fitter),
+    active_fitter: FitterRead = Depends(active_fitter),
 ):
-    fitter = fitter_repo.get_fitter_by_id(fitter_id=fitter_id)
-    if fitter:
-        if fitter_update.password:
-            fitter_update.password = auth_service.hash_password(
-                password=fitter_update.password
-            )
-        else:
-            fitter_update.password = fitter.password
-        try:
-            fitter_repo.update_fitter(fitter_update=fitter_update, fitter_id=fitter_id)
-            address_repo.update_address(
-                address_update=address_update, address_id=address_id
-            )
-        except IntegrityError:
-            stores = store_repo.get_all_stores()
-            return templates.TemplateResponse(
-                "update-fitter.html",
-                {
-                    "title": "Fittr - Update Fitter",
-                    "request": request,
-                    "active_fitter": lead_fitter,
-                    "fitter": fitter,
-                    "states": list(
-                        map(lambda state: state.value, State._member_map_.values())
-                    ),
-                    "roles": list(
-                        map(lambda role: role.value, Role._member_map_.values())
-                    ),
-                    "stores": stores,
-                    "errors": [f"Username '{fitter_update.username}' already exists"],
-                },
-            )
-        return RedirectResponse(f"/fitters/{fitter.id}", status_code=303)
-    raise HTTPException(status_code=404, detail="Fitter not found")
+    if active_fitter.role == "Lead" or active_fitter.id == fitter_id:
+        fitter = fitter_repo.get_fitter_by_id(fitter_id=fitter_id)
+        if fitter:
+            if fitter_update.password:
+                fitter_update.password = auth_service.hash_password(
+                    password=fitter_update.password
+                )
+            else:
+                fitter_update.password = fitter.password
+            try:
+                fitter_repo.update_fitter(
+                    fitter_update=fitter_update, fitter_id=fitter_id
+                )
+                address_repo.update_address(
+                    address_update=address_update, address_id=address_id
+                )
+            except IntegrityError:
+                stores = store_repo.get_all_stores()
+                return templates.TemplateResponse(
+                    "update-fitter.html",
+                    {
+                        "title": "Fittr - Update Fitter",
+                        "request": request,
+                        "active_fitter": active_fitter,
+                        "fitter": fitter,
+                        "states": list(
+                            map(lambda state: state.value, State._member_map_.values())
+                        ),
+                        "roles": list(
+                            map(lambda role: role.value, Role._member_map_.values())
+                        ),
+                        "stores": stores,
+                        "errors": [
+                            f"Username '{fitter_update.username}' already exists"
+                        ],
+                    },
+                )
+            return RedirectResponse(f"/fitters/{fitter.id}", status_code=303)
+        raise HTTPException(status_code=404, detail="Fitter not found")
+    raise HTTPException(status_code=403, detail="Unauthorized")

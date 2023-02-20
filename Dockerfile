@@ -36,8 +36,7 @@ ENV POSTGRES_PASSWORD=password
 ENV TESTING=1
 
 COPY ./tests/ tests/
-
-RUN pytest -vvv > results.txt
+RUN pytest -vvv 2>&1 | tee results.txt
 
 FROM scratch as export-test-results
 COPY --from=test /fitter/results.txt results.txt
