@@ -46,7 +46,7 @@
     {% endfor %}
     <form class="row g-3" action="/update-store/{{store.id}}" method="post">
         <div class="col-6">
-            <label for="inputName" class="form-label">Name</label>
+            <label for="inputName" class="form-label">Name*</label>
             <input
                 type="text"
                 class="form-control"
@@ -57,7 +57,7 @@
             />
         </div>
         <div class="col-6">
-            <label for="inputPhone" class="form-label">Phone</label>
+            <label for="inputPhone" class="form-label">Phone*</label>
             <input
                 type="text"
                 class="form-control"
@@ -74,7 +74,7 @@
             hidden
         />
         <div class="col-12">
-            <label for="inputStreet" class="form-label">Street</label>
+            <label for="inputStreet" class="form-label">Street*</label>
             <input
                 type="text"
                 class="form-control"
@@ -96,7 +96,7 @@
             />
         </div>
         <div class="col-md-6">
-            <label for="inputCity" class="form-label">City</label>
+            <label for="inputCity" class="form-label">City*</label>
             <input
                 type="text"
                 class="form-control"
@@ -107,7 +107,7 @@
             />
         </div>
         <div class="col-md-4">
-            <label for="inputState" class="form-label">State</label>
+            <label for="inputState" class="form-label">State*</label>
             <select id="inputState" class="form-select" name="state" required>
                 {% for state in states %} {% if state == store.address.state %}
                 <option value="{{state}}" selected>{{state}}</option>
@@ -117,7 +117,7 @@
             </select>
         </div>
         <div class="col-md-2">
-            <label for="inputZip" class="form-label">Zip</label>
+            <label for="inputZip" class="form-label">Zip*</label>
             <input
                 type="text"
                 class="form-control"

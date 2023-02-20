@@ -46,7 +46,7 @@
     {% endfor %}
     <form class="row g-3" action="/create-fitter" method="post">
         <div class="col-md-4">
-            <label for="inputFirstName" class="form-label">First name</label>
+            <label for="inputFirstName" class="form-label">First name*</label>
             <input
                 type="text"
                 class="form-control"
@@ -56,7 +56,7 @@
             />
         </div>
         <div class="col-md-4">
-            <label for="inputLastName" class="form-label">Last name</label>
+            <label for="inputLastName" class="form-label">Last name*</label>
             <input
                 type="text"
                 class="form-control"
@@ -66,7 +66,7 @@
             />
         </div>
         <div class="col-md-4">
-            <label for="inputStore" class="form-label">Home Store</label>
+            <label for="inputStore" class="form-label">Home Store*</label>
             <select
                 id="inputStore"
                 class="form-select"
@@ -81,7 +81,7 @@
             </select>
         </div>
         <div class="col-md-4">
-            <label for="inputUsername" class="form-label">Username</label>
+            <label for="inputUsername" class="form-label">Username*</label>
             <input
                 type="text"
                 class="form-control"
@@ -91,7 +91,7 @@
             />
         </div>
         <div class="col-md-4">
-            <label for="inputPassword" class="form-label">Password</label>
+            <label for="inputPassword" class="form-label">Password*</label>
             <input
                 type="password"
                 class="form-control"
@@ -101,7 +101,7 @@
             />
         </div>
         <div class="col-md-4">
-            <label for="inputRole" class="form-label">Role</label>
+            <label for="inputRole" class="form-label">Role*</label>
             <select id="inputRole" class="form-select" name="role" required>
                 {% for role in roles %} {% if roles.index(role) == 0 %}
                 <option value="{{role}}" selected>{{role}}</option>
@@ -111,7 +111,7 @@
             </select>
         </div>
         <div class="col-12">
-            <label for="inputBio" class="form-label">Bio</label>
+            <label for="inputBio" class="form-label">Bio*</label>
             <input
                 type="text"
                 class="form-control"
@@ -121,7 +121,7 @@
             />
         </div>
         <div class="col-12">
-            <label for="inputStreet" class="form-label">Street</label>
+            <label for="inputStreet" class="form-label">Street*</label>
             <input
                 type="text"
                 class="form-control"
@@ -142,7 +142,7 @@
             />
         </div>
         <div class="col-md-6">
-            <label for="inputCity" class="form-label">City</label>
+            <label for="inputCity" class="form-label">City*</label>
             <input
                 type="text"
                 class="form-control"
@@ -152,7 +152,7 @@
             />
         </div>
         <div class="col-md-4">
-            <label for="inputState" class="form-label">State</label>
+            <label for="inputState" class="form-label">State*</label>
             <select id="inputState" class="form-select" name="state" required>
                 {% for state in states %} {% if states.index(state) == 0 %}
                 <option value="{{state}}" selected>{{state}}</option>
@@ -162,7 +162,7 @@
             </select>
         </div>
         <div class="col-md-2">
-            <label for="inputZip" class="form-label">Zip</label>
+            <label for="inputZip" class="form-label">Zip*</label>
             <input
                 type="text"
                 class="form-control"
